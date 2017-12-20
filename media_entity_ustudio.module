@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * @file
+ * Contains media_entity_ustudio.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function media_entity_ustudio_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the media_entity_ustudio module.
+    case 'help.page.media_entity_ustudio':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides Ustudio Media Entity') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function media_entity_ustudio_theme() {
+  return [
+    'media_entity_ustudio' => [
+      'render element' => 'children',
+    ],
+  ];
+}
