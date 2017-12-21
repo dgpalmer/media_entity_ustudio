@@ -1,0 +1,13 @@
+langcode: und
+status: true
+dependencies:
+  module:
+    - media_entity_ustudio
+id: ustudio
+label: uStudio
+description: 'uStudio media (videos and livestreams).'
+type: uStudio
+type_configuration:
+  source_field: embed_code
+field_map: {  }
+
