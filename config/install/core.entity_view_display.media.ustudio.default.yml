@@ -1,0 +1,29 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.media.ustudio.embed_code
+    - field.field.media.ustudio.field_media_in_library
+    - media_entity.bundle.ustudio
+  module:
+    - media_entity_ustudio
+id: media.ustudio.default
+targetEntityType: media
+bundle: ustudio
+mode: default
+content:
+  embed_code:
+    type: ustudio_embed
+    weight: 0
+    label: visually_hidden
+    settings:
+      width: 480
+    third_party_settings: {  }
+    region: content
+hidden:
+  created: true
+  field_media_in_library: true
+  name: true
+  thumbnail: true
+  uid: true
+
