@@ -59,12 +59,12 @@ class uStudio extends MediaTypeBase {
    *   Entity field manager service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   Config factory service.
-   * @param \Drupal\media_entity_instagram\InstagramEmbedFetcher $fetcher
-   *   Instagram fetcher service.
+   * @param \Drupal\media_entity_ustudio\uStudioEmbedFetcher $fetcher
+   *   uStudio fetcher service.
    * @param \GuzzleHttp\Client $httpClient
    *   Guzzle client.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, ConfigFactoryInterface $config_factory, InstagramEmbedFetcher $fetcher, Client $httpClient) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, ConfigFactoryInterface $config_factory, uStudioEmbedFetcher $fetcher, Client $httpClient) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $entity_field_manager, $config_factory->get('media_entity.settings'));
     $this->configFactory = $config_factory;
     $this->fetcher = $fetcher;

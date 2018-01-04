@@ -44,7 +44,7 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
   protected $loggerFactory;
 
   /**
-   * InstagramEmbedFetcher constructor.
+   * uStudioEmbedFetcher constructor.
    *
    * @param \GuzzleHttp\Client $client
    *   A HTTP Client.
@@ -97,12 +97,12 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
       $this->loggerFactory->get('media_entity_ustudio')->error("Could not retrieve uStudio post $shortcode.", Error::decodeException($e));
     }
 
-    // If we got data from Instagram oEmbed request, return data.
+    // If we got data from uStudio oEmbed request, return data.
     if (isset($data)) {
 
       // If we have a cache, store the response for future use.
       if ($this->cache) {
-        // Instagram posts don't change often, so the response should expire
+        // uStudio posts don't change often, so the response should expire
         // from the cache on its own in 90 days.
         $this->cache->set($cacheKey, $data, time() + (86400 * 90));
       }
