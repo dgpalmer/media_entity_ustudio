@@ -1,0 +1,15 @@
+services:
+  media_entity_ustudio.ustudio_embed_fetcher:
+    class: '\Drupal\media_entity_ustudio\uStudioEmbedFetcher'
+    arguments:
+      - '@http_client'
+      - '@logger.factory'
+      - '@media_entity_ustudio.cache.ustudio_posts'
+
+  media_entity_ustudio.cache.ustudio_posts:
+    class: '\Drupal\Core\Cache\CacheBackendInterface'
+    tags:
+      - { name: cache.bin, default_backend: cache.backend.chainedfast }
+    factory: cache_factory:get
+    arguments:
+      - ustudio_posts

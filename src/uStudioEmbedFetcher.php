@@ -51,7 +51,7 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
    * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerFactory
    *   A logger factory.
    * @param \Drupal\Core\Cache\CacheBackendInterface|null $cache
-   *   (optional) A cache bin for storing fetched instagram posts.
+   *   (optional) A cache bin for storing fetched uStudio posts.
    */
   public function __construct(Client $client, LoggerChannelFactoryInterface $loggerFactory, CacheBackendInterface $cache = NULL) {
     $this->httpClient = $client;
