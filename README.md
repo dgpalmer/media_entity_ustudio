@@ -49,4 +49,4 @@ field_map:
 Project page: http://drupal.org/project/media_entity_ustudio
 
 Maintainers:
- - Donovan Palmer (@dpalmer) drupal.org/user/332471
+ - Donovan Palmer (@dpiga) drupal.org/user/332471
