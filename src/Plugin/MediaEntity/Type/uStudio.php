@@ -16,7 +16,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * Provides media type plugin for uStudio.
  *
  * @MediaType(
- *   id = "ustudio",
+ *   id = "uStudio",
  *   label = @Translation("uStudio"),
  *   description = @Translation("Provides business logic and metadata for uStudio.")
  * )
