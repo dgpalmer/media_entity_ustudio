@@ -13,14 +13,13 @@ use GuzzleHttp\Exception\RequestException;
 /**
  * Fetches uStudio post via oembed.
  *
- * Fetches (and caches) uStudio post data from free to use uStudio's oEmbed
- * call.
+ * Fetches (and caches) uStudio data from uStudio's API
  */
 class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
 
-  const USTUDIO_URL = 'http://ustud.io/p/';
+  const USTUDIO_URL = 'http://app.ustudio.com';
 
-  const USTUDIO_API = 'http://api.ustudio.com/oembed';
+  const USTUDIO_API = 'http://app.ustudio.com/api/v2';
 
   /**
    * The optional cache backend.
@@ -62,17 +61,11 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
   /**
    * {@inheritdoc}
    */
-  public function fetchUStudioEmbed($shortcode, $hidecaption = FALSE, $maxWidth = NULL) {
+  public function fetchUStudioEmbed($destination, $video, $hidecaption = FALSE, $maxWidth = NULL) {
 
     $options = [
-      'url' => self::USTUDIO_URL . $shortcode . '/',
-      'hidecaption' => (int) $hidecaption,
-      'omitscript' => 1,
+      'url' => self::USTUDIO_URL . '/embed/' . $destination. '/' . $video,
     ];
-
-    if ($maxWidth) {
-      $options['maxwidth'] = $maxWidth;
-    }
 
     // Tweets don't change much, so pull it out of the cache (if we have one)
     // if this one has already been fetched.
@@ -83,10 +76,11 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
 
     $queryParameter = UrlHelper::buildQuery($options);
 
+    dpm(self::USTUDIO_API . '/oembed?' . $queryParameter);
     try {
       $response = $this->httpClient->request(
         'GET',
-        self::USTUDIO_API . '?' . $queryParameter,
+        self::USTUDIO_API . '/oembed?' . $queryParameter,
         ['timeout' => 5]
       );
       if ($response->getStatusCode() === 200) {

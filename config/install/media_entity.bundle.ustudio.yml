@@ -4,7 +4,7 @@ dependencies:
   module:
     - media_entity_ustudio
 id: ustudio
-label: uStudio
+label: uStudio Video
 description: 'uStudio media (videos and livestreams).'
 type: uStudio
 type_configuration:

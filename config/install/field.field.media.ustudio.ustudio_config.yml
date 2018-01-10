@@ -8,12 +8,11 @@ id: media.ustudio.embed_code
 field_name: embed_code
 entity_type: media
 bundle: ustudio
-label: 'uStudio Video URL Or Embed Code'
-description: 'Paste the URL to the uStudio Video or its embed code. You can also upload a new video above and the fields will be autopopulated.'
+label: 'uStudio Configuration'
+description: 'Serialized Array of the data from the config.json for a uStudio video'
 required: true
 translatable: false
 default_value: {  }
 default_value_callback: ''
 settings: {  }
 field_type: string_long
-

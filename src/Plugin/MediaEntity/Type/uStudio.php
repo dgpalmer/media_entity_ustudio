@@ -93,8 +93,12 @@ class uStudio extends MediaTypeBase {
    * @var array
    */
   public static $validationRegexp = [
-    '@((http|https):){0,1}//(www\.){0,1}ustudio\.com/p/(?<shortcode>[a-z0-9_-]+)@i' => 'shortcode',
-    '@((http|https):){0,1}//(www\.){0,1}ustudio\.am/p/(?<shortcode>[a-z0-9_-]+)@i' => 'shortcode',
+//    '@((http|https):){0,1}//(www\.){0,1}embed\.ustudio\.com/embed/(?<shortcode>[a-z0-9_-]+)@i' => 'shortcode',
+//    '@((http|https):){0,1}//(www\.){0,1}embed\.ustudio\.com/embed/(?[a-z0-9_-])/(?<shortcode>[a-z0-9_-]+)@i' => 'shortcode'
+      '@((http|https):){0,1}//(www\.){0,1}embed\.ustudio\.com/embed/(?<destination>[^=&?/\r\n]{10,12})@i' => 'destination',
+      '@((http|https):){0,1}//(www\.){0,1}embed\.ustudio\.com/embed/[^=&?/\r\n]{10,12}/(?<video>[^=&?/\r\n]{10,12})@i' => 'video',
+      '@((http|https):){0,1}//(www\.){0,1}authorized\-embed\.ustudio\.com/embed/(?<destination>[^=&?/\r\n]{10,12})@i' => 'destination',
+      '@((http|https):){0,1}//(www\.){0,1}authorized\-embed\.ustudio\.com/embed/[^=&?/\r\n]{10,12}/(?<video>[^=&?/\r\n]{10,12})@i' => 'video'
   ];
 
   /**
@@ -103,6 +107,7 @@ class uStudio extends MediaTypeBase {
   public function providedFields() {
     return [
       'shortcode' => $this->t('uStudio shortcode'),
+      'config' => $this->t('uStudio configuration'),
       'id' => $this->t('Media ID'),
       'type' => $this->t('Media type: livestream or video'),
       'thumbnail' => $this->t('Link to the thumbnail'),
@@ -184,6 +189,10 @@ class uStudio extends MediaTypeBase {
             return $ustudio['title'];
           }
           return FALSE;
+        case 'config':
+          if (isset($ustudio['config'])) {
+            return $ustudio['config'];
+          }
 
       }
     }

@@ -10,8 +10,10 @@ interface uStudioEmbedFetcherInterface {
   /**
    * Retrieves a uStudio post by its shortcode.
    *
-   * @param int $shortcode
-   *   The uStudio post shortcode.
+   * @param int $destination
+   *   The uStudio destination id.
+   * @param int $video
+   *   The uStudio video id.
    * @param bool $hidecaption
    *   Indicates if the caption should be hidden in the html.
    * @param bool $maxWidth
@@ -20,6 +22,6 @@ interface uStudioEmbedFetcherInterface {
    * @return array
    *   The instagram oEmbed information.
    */
-  public function fetchUStudioEmbed($shortcode, $hidecaption = FALSE, $maxWidth = NULL);
+  public function fetchUStudioEmbed($destination, $video, $hidecaption = FALSE, $maxWidth = NULL);
 
 }

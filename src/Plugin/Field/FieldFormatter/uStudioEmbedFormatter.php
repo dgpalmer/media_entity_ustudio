@@ -69,33 +69,33 @@ class uStudioEmbedFormatter extends FormatterBase implements ContainerFactoryPlu
 
       foreach (uStudio::$validationRegexp as $pattern => $key) {
         if (preg_match($pattern, $this->getEmbedCode($item), $item_matches)) {
-          $matches[] = $item_matches;
+          $matches[$key] = $item_matches[$key];
         }
       }
+      dpm($matches);
 
-      if (!empty($matches)) {
-        $matches = reset($matches);
-      }
+      if (!empty($matches['destination']) && !empty($matches['video'])) {
 
-      if (!empty($matches['shortcode'])) {
-
-        if ($ustudio = $this->fetcher->fetchUStudioEmbed($matches['shortcode'], $settings['hidecaption'], $settings['width'])) {
-          $element[$delta] = [
-            '#theme' => 'media_entity_ustudio_post',
-            '#post' => (string) $ustudio['html'],
-            '#shortcode' => $matches['shortcode'],
+        if ($ustudio = $this->fetcher->fetchUStudioEmbed($matches['destination'], $matches['video'], $settings['hidecaption'], $settings['width'])) {
+          dpm($ustudio);
+          dpm($delta);
+          $element = [
+            '#theme' => 'media_entity_ustudio',
+            '#post' => '<h1>Test</h1>',
+            '#destination' => $matches['destination'],
+            '#video' => $matches['video'],
           ];
         }
       }
     }
 
-    if (!empty($element)) {
+/*    if (!empty($element)) {
       $element['#attached'] = [
         'library' => [
           'media_entity_ustudio/integration',
         ],
       ];
-    }
+          }*/
 
     return $element;
   }
