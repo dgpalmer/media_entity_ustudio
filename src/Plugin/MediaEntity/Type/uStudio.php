@@ -124,16 +124,16 @@ class uStudio extends MediaTypeBase {
   public function getField(MediaInterface $media, $name) {
     $matches = $this->matchRegexp($media);
 
-    if (!$matches['shortcode']) {
+    if (!$matches['destination'] || !$matches['video']) {
       return FALSE;
     }
 
-    if ($name == 'shortcode') {
-      return $matches['shortcode'];
+    if ($name == 'destination') {
+      return $matches['destination'];
     }
 
     // If we have auth settings return the other fields.
-    if ($ustudio = $this->fetcher->fetchUStudioEmbed($matches['shortcode'])) {
+    if ($ustudio = $this->fetcher->fetchUStudioEmbed($matches['destination'], $matches['video'])) {
       switch ($name) {
         case 'id':
           if (isset($ustudio['media_id'])) {
@@ -148,33 +148,47 @@ class uStudio extends MediaTypeBase {
           return FALSE;
 
         case 'thumbnail':
-          return 'http://ustudio.com/p/' . $matches['shortcode'] . '/media/?size=m';
+          return $ustudio['thumbnail_url'];
 
         case 'thumbnail_local':
+          dpm('thumbnail local');
           $local_uri = $this->getField($media, 'thumbnail_local_uri');
+          dpm($local_uri);
 
           if ($local_uri) {
             if (file_exists($local_uri)) {
+              dpm('it exists homie');
               return $local_uri;
             }
             else {
+              dpm('doesnt exist homie');
 
               $directory = dirname($local_uri);
               file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
 
+              dpm($directory);
               $image_url = $this->getField($media, 'thumbnail');
+              dpm($image_url);
+              $image_url = 'https://www.selenagomez.com/sites/g/files/aaj1261/f/styles/suzuki_breakpoints_image_tablet/public/photo/201710/25/22802224_160937671169750_7214613822470881280_n.jpg?itok=Mm2niP1f';
 
-              $response = $this->httpClient->get($image_url);
-              if ($response->getStatusCode() == 200) {
-                return file_unmanaged_save_data($response->getBody(), $local_uri, FILE_EXISTS_REPLACE);
+              $data = file_get_contents($image_url);
+              if (!empty($data)) {
+                dpm('not empty');
+                return file_save_data($data, $local_uri, FILE_EXISTS_REPLACE);
+              } else {
+                dpm('empty');
               }
             }
           }
           return FALSE;
 
         case 'thumbnail_local_uri':
+          dpm('thumbnail local uri');
           if (isset($ustudio['thumbnail_url'])) {
-            return $this->configFactory->get('media_entity_ustudio.settings')->get('local_images') . '/' . $matches['shortcode'] . '.' . pathinfo(parse_url($ustudio['thumbnail_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
+            dpm($ustudio['thumbnail_url']);
+            $base_path = \Drupal::service('file_system')->realpath(file_default_scheme() . "://");
+
+            return $base_path . '/' . $this->configFactory->get('media_entity_ustudio.settings')->get('local_images') . '/' . $matches['destination'] . '.' . $matches['video'] . '.' . pathinfo(parse_url($ustudio['thumbnail_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
           }
           return FALSE;
 
@@ -195,6 +209,8 @@ class uStudio extends MediaTypeBase {
           }
 
       }
+    } else {
+      dpm('nope');
     }
 
     return FALSE;
@@ -255,16 +271,21 @@ class uStudio extends MediaTypeBase {
    */
   protected function matchRegexp(MediaInterface $media) {
     $matches = [];
+    $_matches = [];
 
     if (isset($this->configuration['source_field'])) {
       $source_field = $this->configuration['source_field'];
       if ($media->hasField($source_field)) {
         $property_name = $media->{$source_field}->first()->mainPropertyName();
         foreach (static::$validationRegexp as $pattern => $key) {
-          if (preg_match($pattern, $media->{$source_field}->{$property_name}, $matches)) {
-            return $matches;
+          if (preg_match($pattern, $media->{$source_field}->{$property_name}, $_matches)) {
+            $matches[$key] = $_matches[$key];
+            if (!empty($matches['destination']) && !empty($matches['video'])) {
+              return $matches;
+            }
           }
         }
+
       }
     }
     return FALSE;
@@ -281,7 +302,8 @@ class uStudio extends MediaTypeBase {
    * {@inheritdoc}
    */
   public function thumbnail(MediaInterface $media) {
-    if ($local_image = $this->getField($media, 'ustudio_local')) {
+    if ($local_image = $this->getField($media, 'thumbnail_local')) {
+      dpm($local_image);
       return $local_image;
     }
 
@@ -300,7 +322,7 @@ class uStudio extends MediaTypeBase {
       return $username . ' - ' . $id;
     }
     else {
-      $code = $this->getField($media, 'shortcode');
+      $code = $this->getField($media, 'destination');
       if (!empty($code)) {
         return $code;
       }

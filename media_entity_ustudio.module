@@ -29,7 +29,11 @@ function media_entity_ustudio_help($route_name, RouteMatchInterface $route_match
 function media_entity_ustudio_theme() {
   return [
     'media_entity_ustudio' => [
-      'render element' => 'children',
+      'variables' => [
+        'post' => NULL,
+        'destination' => NULL,
+        'video' => NULL,
+      ],
     ],
   ];
 }

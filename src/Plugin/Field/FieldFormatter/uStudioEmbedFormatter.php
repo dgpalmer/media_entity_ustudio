@@ -72,16 +72,13 @@ class uStudioEmbedFormatter extends FormatterBase implements ContainerFactoryPlu
           $matches[$key] = $item_matches[$key];
         }
       }
-      dpm($matches);
 
       if (!empty($matches['destination']) && !empty($matches['video'])) {
 
         if ($ustudio = $this->fetcher->fetchUStudioEmbed($matches['destination'], $matches['video'], $settings['hidecaption'], $settings['width'])) {
-          dpm($ustudio);
-          dpm($delta);
           $element = [
             '#theme' => 'media_entity_ustudio',
-            '#post' => '<h1>Test</h1>',
+            '#post' => $ustudio['html'],
             '#destination' => $matches['destination'],
             '#video' => $matches['video'],
           ];
@@ -89,13 +86,13 @@ class uStudioEmbedFormatter extends FormatterBase implements ContainerFactoryPlu
       }
     }
 
-/*    if (!empty($element)) {
+    if (!empty($element)) {
       $element['#attached'] = [
         'library' => [
           'media_entity_ustudio/integration',
         ],
       ];
-          }*/
+    }
 
     return $element;
   }
