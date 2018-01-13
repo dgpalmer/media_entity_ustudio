@@ -148,12 +148,12 @@ class uStudio extends MediaTypeBase {
           return FALSE;
 
         case 'thumbnail':
-          return $ustudio['thumbnail_url'];
+          dpm('returning thumbnail url');
+          dpm($ustudio['thumbnail_url']);
+          return (string) $ustudio['thumbnail_url'];
 
         case 'thumbnail_local':
-          dpm('thumbnail local');
           $local_uri = $this->getField($media, 'thumbnail_local_uri');
-          dpm($local_uri);
 
           if ($local_uri) {
             if (file_exists($local_uri)) {
@@ -166,17 +166,25 @@ class uStudio extends MediaTypeBase {
               $directory = dirname($local_uri);
               file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
 
-              dpm($directory);
               $image_url = $this->getField($media, 'thumbnail');
-              dpm($image_url);
-              $image_url = 'https://www.selenagomez.com/sites/g/files/aaj1261/f/styles/suzuki_breakpoints_image_tablet/public/photo/201710/25/22802224_160937671169750_7214613822470881280_n.jpg?itok=Mm2niP1f';
+              //$image_url = 'https://www.selenagomez.com/sites/g/files/aaj1261/f/styles/suzuki_breakpoints_image_tablet/public/photo/201710/25/22802224_160937671169750_7214613822470881280_n.jpg?itok=Mm2niP1f';
+              //
+              // $image_url = "https://i.imgur.com/Ii7m3W7.jpg";
 
-              $data = file_get_contents($image_url);
-              if (!empty($data)) {
-                dpm('not empty');
-                return file_save_data($data, $local_uri, FILE_EXISTS_REPLACE);
-              } else {
-                dpm('empty');
+              try {
+                $options = [
+                 'verify' => FALSE,
+                ];
+                $thumbnail = $this->httpClient->request('GET', $image_url, $options);
+
+                dpm('hello');
+                dpm((string) $thumbnail->getBody());
+                dpm($local_uri);
+                file_unmanaged_save_data((string) $thumbnail->getBody(), $local_uri, FILE_EXISTS_REPLACE);
+                return $local_uri;
+              } catch (\Exception $e) {
+                dpm($e->getCode());
+                dpm($e->getTraceAsString());
               }
             }
           }
@@ -303,7 +311,6 @@ class uStudio extends MediaTypeBase {
    */
   public function thumbnail(MediaInterface $media) {
     if ($local_image = $this->getField($media, 'thumbnail_local')) {
-      dpm($local_image);
       return $local_image;
     }
 
