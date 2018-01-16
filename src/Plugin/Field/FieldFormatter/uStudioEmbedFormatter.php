@@ -75,10 +75,10 @@ class uStudioEmbedFormatter extends FormatterBase implements ContainerFactoryPlu
 
       if (!empty($matches['destination']) && !empty($matches['video'])) {
 
-        if ($ustudio = $this->fetcher->fetchUStudioEmbed($matches['destination'], $matches['video'], $settings['hidecaption'], $settings['width'])) {
+        if ($ustudio = $this->fetcher->fetchUStudioEmbed($matches['destination'], $matches['video'])) {
           $element = [
             '#theme' => 'media_entity_ustudio',
-            '#post' => $ustudio['html'],
+            '#embed' => $ustudio['html'],
             '#destination' => $matches['destination'],
             '#video' => $matches['video'],
           ];
@@ -113,21 +113,6 @@ class uStudioEmbedFormatter extends FormatterBase implements ContainerFactoryPlu
   public function settingsForm(array $form, FormStateInterface $form_state) {
     $elements = parent::settingsForm($form, $form_state);
 
-    $elements['width'] = [
-      '#type' => 'number',
-      '#title' => $this->t('Width'),
-      '#default_value' => $this->getSetting('width'),
-      '#min' => 320,
-      '#description' => $this->t('Max width of uStudio.'),
-    ];
-
-    $elements['hidecaption'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Caption hidden'),
-      '#default_value' => $this->getSetting('hidecaption'),
-      '#description' => $this->t('Enable to hide caption of uStudio posts.'),
-    ];
-
     return $elements;
   }
 
@@ -138,16 +123,6 @@ class uStudioEmbedFormatter extends FormatterBase implements ContainerFactoryPlu
     $settings = $this->getSettings();
 
     $summary = [];
-
-    if ($this->getSetting('width')) {
-      $summary[] = $this->t('Width: @width px', [
-        '@width' => $this->getSetting('width'),
-      ]);
-    }
-
-    $summary[] = $this->t('Caption: @hidecaption', [
-      '@hidecaption' => $settings['hidecaption'] ? $this->t('Hidden') : $this->t('Visible'),
-    ]);
 
     return $summary;
   }

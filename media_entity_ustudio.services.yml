@@ -4,12 +4,12 @@ services:
     arguments:
       - '@http_client'
       - '@logger.factory'
-      - '@media_entity_ustudio.cache.ustudio_posts'
+      - '@media_entity_ustudio.cache.ustudio_embeds'
 
-  media_entity_ustudio.cache.ustudio_posts:
+  media_entity_ustudio.cache.ustudio_embeds:
     class: '\Drupal\Core\Cache\CacheBackendInterface'
     tags:
       - { name: cache.bin, default_backend: cache.backend.chainedfast }
     factory: cache_factory:get
     arguments:
-      - ustudio_posts
+      - ustudio_videos
