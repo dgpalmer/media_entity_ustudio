@@ -61,7 +61,7 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
   /**
    * {@inheritdoc}
    */
-  public function fetchUStudioEmbed($destination, $video, $hidecaption = FALSE, $maxWidth = NULL) {
+  public function fetchUStudioEmbed($destination, $video) {
 
     $options = [
       'url' => self::USTUDIO_URL . '/embed/' . $destination. '/' . $video,
