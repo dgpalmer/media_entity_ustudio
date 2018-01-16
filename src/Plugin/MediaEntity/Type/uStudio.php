@@ -148,8 +148,6 @@ class uStudio extends MediaTypeBase {
           return FALSE;
 
         case 'thumbnail':
-          dpm('returning thumbnail url');
-          dpm($ustudio['thumbnail_url']);
           return (string) $ustudio['thumbnail_url'];
 
         case 'thumbnail_local':
@@ -157,11 +155,9 @@ class uStudio extends MediaTypeBase {
 
           if ($local_uri) {
             if (file_exists($local_uri)) {
-              dpm('it exists homie');
               return $local_uri;
             }
             else {
-              dpm('doesnt exist homie');
 
               $directory = dirname($local_uri);
               file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
@@ -177,13 +173,9 @@ class uStudio extends MediaTypeBase {
                 ];
                 $thumbnail = $this->httpClient->request('GET', $image_url, $options);
 
-                dpm('hello');
-                dpm((string) $thumbnail->getBody());
-                dpm($local_uri);
                 file_unmanaged_save_data((string) $thumbnail->getBody(), $local_uri, FILE_EXISTS_REPLACE);
                 return $local_uri;
               } catch (\Exception $e) {
-                dpm($e->getCode());
                 dpm($e->getTraceAsString());
               }
             }
@@ -191,9 +183,7 @@ class uStudio extends MediaTypeBase {
           return FALSE;
 
         case 'thumbnail_local_uri':
-          dpm('thumbnail local uri');
           if (isset($ustudio['thumbnail_url'])) {
-            dpm($ustudio['thumbnail_url']);
             $base_path = \Drupal::service('file_system')->realpath(file_default_scheme() . "://");
 
             return $base_path . '/' . $this->configFactory->get('media_entity_ustudio.settings')->get('local_images') . '/' . $matches['destination'] . '.' . $matches['video'] . '.' . pathinfo(parse_url($ustudio['thumbnail_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
@@ -217,8 +207,6 @@ class uStudio extends MediaTypeBase {
           }
 
       }
-    } else {
-      dpm('nope');
     }
 
     return FALSE;
