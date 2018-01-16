@@ -30,7 +30,7 @@ class uStudioEmbedFormatter extends FormatterBase implements ContainerFactoryPlu
   /**
    * The uStudio fetcher.
    *
-   * @var \Drupal\media_entity_ustudio\Plugin\MediaEntity\Type\uStudioEmbedFetcher
+   * @var \Drupal\media_entity_ustudio\uStudioEmbedFetcher
    */
   protected $fetcher;
 
