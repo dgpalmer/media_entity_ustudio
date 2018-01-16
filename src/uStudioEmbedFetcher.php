@@ -88,7 +88,7 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
       }
     }
     catch (RequestException $e) {
-      $this->loggerFactory->get('media_entity_ustudio')->error("Could not retrieve uStudio post $shortcode.", Error::decodeException($e));
+      $this->loggerFactory->get('media_entity_ustudio')->error("Could not retrieve uStudio embed $destination/$video.", Error::decodeException($e));
     }
 
     // If we got data from uStudio oEmbed request, return data.

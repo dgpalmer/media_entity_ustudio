@@ -163,8 +163,6 @@ class uStudio extends MediaTypeBase {
               file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
 
               $image_url = $this->getField($media, 'thumbnail');
-              //$image_url = 'https://www.selenagomez.com/sites/g/files/aaj1261/f/styles/suzuki_breakpoints_image_tablet/public/photo/201710/25/22802224_160937671169750_7214613822470881280_n.jpg?itok=Mm2niP1f';
-              //
               // $image_url = "https://i.imgur.com/Ii7m3W7.jpg";
 
               try {
@@ -184,9 +182,8 @@ class uStudio extends MediaTypeBase {
 
         case 'thumbnail_local_uri':
           if (isset($ustudio['thumbnail_url'])) {
-            $base_path = \Drupal::service('file_system')->realpath(file_default_scheme() . "://");
 
-            return $base_path . '/' . $this->configFactory->get('media_entity_ustudio.settings')->get('local_images') . '/' . $matches['destination'] . '.' . $matches['video'] . '.' . pathinfo(parse_url($ustudio['thumbnail_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
+            return 'public://' . $this->configFactory->get('media_entity_ustudio.settings')->get('local_images') . '/' . $matches['destination'] . '.' . $matches['video'] . '.' . pathinfo(parse_url($ustudio['thumbnail_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
           }
           return FALSE;
 
@@ -257,7 +254,7 @@ class uStudio extends MediaTypeBase {
   /**
    * Runs preg_match on embed code/URL.
    *
-   * @param \Drupal\media_entity\MediaUstudio $media
+   * @param \Drupal\media_entity_ustudio\Plugin\MediaEntity\Type\uStudio $media
    *   Media object.
    *
    * @return array|bool
