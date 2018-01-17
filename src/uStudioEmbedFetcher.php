@@ -67,7 +67,7 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
       'url' => self::USTUDIO_URL . '/embed/' . $destination. '/' . $video,
     ];
 
-    // Tweets don't change much, so pull it out of the cache (if we have one)
+    // uStudio videos don't change much, so pull it out of the cache (if we have one)
     // if this one has already been fetched.
     $cacheKey = md5(serialize($options));
     if ($this->cache && $cached_ustudio_post = $this->cache->get($cacheKey)) {
