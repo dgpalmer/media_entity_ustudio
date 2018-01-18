@@ -120,7 +120,14 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
    * {@inheritdoc}
    */
   public function getMetadata(MediaInterface $media, $name) {
+    dpm('name');
+    dpm($name);
+    if ($name == 'thumbnail_uri') {
+      return $this->getMetadata($media, 'thumbnail_local');
+    }
     $matches = $this->matchRegexp($media);
+    dpm('matches');
+    dpm($matches);
 
     if (!$matches['destination'] || !$matches['video']) {
       return FALSE;
@@ -236,27 +243,9 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
   }
 
   /**
-   * {@inheritdoc}
-   */
-  public function attachConstraints(MediaInterface $media) {
-    parent::attachConstraints($media);
-
-    if (isset($this->configuration['source_field'])) {
-      $source_field_name = $this->configuration['source_field'];
-      if ($media->hasField($source_field_name)) {
-        foreach ($media->get($source_field_name) as &$embed_code) {
-          /** @var \Drupal\Core\TypedData\DataDefinitionInterface $typed_data */
-          $typed_data = $embed_code->getDataDefinition();
-          $typed_data->addConstraint('uStudioEmbedCode');
-        }
-      }
-    }
-  }
-
-  /**
    * Runs preg_match on embed code/URL.
    *
-   * @param \Drupal\media_entity_ustudio\Plugin\MediaEntity\Type\uStudio $media
+   * @param \Drupal\media_entity_ustudio\Plugin\media\source\uStudio $media
    *   Media object.
    *
    * @return array|bool
@@ -284,45 +273,6 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
       }
     }
     return FALSE;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDefaultThumbnail() {
-    return $this->config->get('icon_base') . '/ustudio.png';
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function thumbnail(MediaInterface $media) {
-    if ($local_image = $this->getField($media, 'thumbnail_local')) {
-      return $local_image;
-    }
-
-    return $this->getDefaultThumbnail();
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getDefaultName(MediaInterface $media) {
-    // Try to get some fields that need the API, if not available, just use the
-    // shortcode as default name.
-    $username = $this->getField($media, 'username');
-    $id = $this->getField($media, 'id');
-    if ($username && $id) {
-      return $username . ' - ' . $id;
-    }
-    else {
-      $code = $this->getField($media, 'destination');
-      if (!empty($code)) {
-        return $code;
-      }
-    }
-
-    return parent::getDefaultName($media);
   }
 
 }
