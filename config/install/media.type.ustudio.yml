@@ -6,8 +6,10 @@ dependencies:
 id: ustudio
 label: uStudio Video
 description: 'uStudio media (videos and livestreams).'
-type: uStudio
-type_configuration:
+source: uStudio
+source_configuration:
   source_field: embed_code
+  generate_thumbnails: true
+  api_key: ''
 field_map: {  }
 

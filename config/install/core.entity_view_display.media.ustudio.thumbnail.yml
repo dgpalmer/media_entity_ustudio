@@ -4,7 +4,7 @@ dependencies:
   config:
     - core.entity_view_mode.media.thumbnail
     - image.style.medium
-    - media_entity.bundle.ustudio
+    - media.type.ustudio
   module:
     - image
 id: media.ustudio.thumbnail

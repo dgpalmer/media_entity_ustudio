@@ -1,34 +1,30 @@
 <?php
 
-namespace Drupal\media_entity_ustudio\Plugin\MediaEntity\Type;
+namespace Drupal\media_entity_ustudio\Plugin\media\source;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
+use Drupal\Core\Field\FieldTypePluginManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\media_entity\MediaInterface;
-use Drupal\media_entity\MediaTypeBase;
+use Drupal\media\MediaInterface;
+use Drupal\media\MediaSourceBase;
+use Drupal\media\MediaTypeInterface;
 use Drupal\media_entity_ustudio\uStudioEmbedFetcher;
 use GuzzleHttp\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\media\MediaSourceFieldConstraintsInterface;
 
 /**
- * Provides media type plugin for uStudio.
+ * uStudio entity media source
  *
- * @MediaType(
+ * @MediaSource(
  *   id = "uStudio",
  *   label = @Translation("uStudio"),
  *   description = @Translation("Provides business logic and metadata for uStudio.")
  * )
  */
-class uStudio extends MediaTypeBase {
-
-  /**
-   * Config factory service.
-   *
-   * @var \Drupal\Core\Config\ConfigFactoryInterface
-   */
-  protected $configFactory;
+class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInterface {
 
   /**
    * The uStudio fetcher.
@@ -59,14 +55,15 @@ class uStudio extends MediaTypeBase {
    *   Entity field manager service.
    * @param \Drupal\Core\Config\ConfigFactoryInterface $config_factory
    *   Config factory service.
+   * @param \Drupal\Core\Field\FieldTypePluginManagerInterface $field_type_manager
+   *   The field type plugin manager service.
    * @param \Drupal\media_entity_ustudio\uStudioEmbedFetcher $fetcher
    *   uStudio fetcher service.
    * @param \GuzzleHttp\Client $httpClient
    *   Guzzle client.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, ConfigFactoryInterface $config_factory, uStudioEmbedFetcher $fetcher, Client $httpClient) {
-    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $entity_field_manager, $config_factory->get('media_entity.settings'));
-    $this->configFactory = $config_factory;
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, ConfigFactoryInterface $config_factory, FieldTypePluginManagerInterface $field_type_manager, uStudioEmbedFetcher $fetcher, Client $httpClient) {
+    parent::__construct($configuration, $plugin_id, $plugin_definition, $entity_type_manager, $entity_field_manager, $field_type_manager, $config_factory);
     $this->fetcher = $fetcher;
     $this->httpClient = $httpClient;
   }
@@ -82,6 +79,7 @@ class uStudio extends MediaTypeBase {
       $container->get('entity_type.manager'),
       $container->get('entity_field.manager'),
       $container->get('config.factory'),
+      $container->get('plugin.manager.field.field_type'),
       $container->get('media_entity_ustudio.ustudio_embed_fetcher'),
       $container->get('http_client')
     );
@@ -104,7 +102,7 @@ class uStudio extends MediaTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function providedFields() {
+  public function getMetadataAttributes() {
     return [
       'shortcode' => $this->t('uStudio shortcode'),
       'config' => $this->t('uStudio configuration'),
@@ -121,7 +119,7 @@ class uStudio extends MediaTypeBase {
   /**
    * {@inheritdoc}
    */
-  public function getField(MediaInterface $media, $name) {
+  public function getMetadata(MediaInterface $media, $name) {
     $matches = $this->matchRegexp($media);
 
     if (!$matches['destination'] || !$matches['video']) {
@@ -151,7 +149,7 @@ class uStudio extends MediaTypeBase {
           return (string) $ustudio['thumbnail_url'];
 
         case 'thumbnail_local':
-          $local_uri = $this->getField($media, 'thumbnail_local_uri');
+          $local_uri = $this->getMetadata($media, 'thumbnail_local_uri');
 
           if ($local_uri) {
             if (file_exists($local_uri)) {
@@ -162,7 +160,7 @@ class uStudio extends MediaTypeBase {
               $directory = dirname($local_uri);
               file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
 
-              $image_url = $this->getField($media, 'thumbnail');
+              $image_url = $this->getMetadata($media, 'thumbnail');
               // $image_url = "https://i.imgur.com/Ii7m3W7.jpg";
 
               try {
@@ -207,6 +205,10 @@ class uStudio extends MediaTypeBase {
     }
 
     return FALSE;
+  }
+
+  public function getSourceFieldConstraints() {
+    return ['uStudioEmbedCode' => []];
   }
 
   /**

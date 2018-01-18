@@ -4,7 +4,7 @@ dependencies:
   config:
     - field.field.media.ustudio.embed_code
     - field.field.media.ustudio.field_media_in_library
-    - media_entity.bundle.ustudio
+    - media.type.ustudio
 third_party_settings: {  }
 id: media.ustudio.default
 targetEntityType: media
