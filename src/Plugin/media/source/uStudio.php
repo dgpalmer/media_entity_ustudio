@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\media_entity_ustudio\Plugin\media\source;
+namespace Drupal\media_entity_ustudio\Plugin\media\Source;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
