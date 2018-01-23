@@ -8,7 +8,7 @@
   "minimum-stability": "dev",
   "support": {
     "issues": "https://www.drupal.org/project/issues/media_entity_ustudio",
-    "source": "https://bitbucket.org/interscoperecords/media_entity_ustudio",
+    "source": "https://bitbucket.org/interscoperecords/media_entity_ustudio"
   },
   "require": { }
 }
