@@ -60,7 +60,6 @@ class uStudioEmbedFormatter extends FormatterBase implements ContainerFactoryPlu
    * {@inheritdoc}
    */
   public function viewElements(FieldItemListInterface $items, $langcode) {
-    dpm('viewelements');
     $element = [];
     $settings = $this->getSettings();
     foreach ($items as $delta => $item) {
@@ -71,7 +70,6 @@ class uStudioEmbedFormatter extends FormatterBase implements ContainerFactoryPlu
           $matches[$key] = $item_matches[$key];
         }
       }
-      dpm($matches);
 
       if (!empty($matches['destination']) && !empty($matches['video'])) {
 

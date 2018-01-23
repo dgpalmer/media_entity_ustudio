@@ -76,7 +76,6 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
 
     $queryParameter = UrlHelper::buildQuery($options);
 
-    dpm(self::USTUDIO_API . '/oembed?' . $queryParameter);
     try {
       $response = $this->httpClient->request(
         'GET',

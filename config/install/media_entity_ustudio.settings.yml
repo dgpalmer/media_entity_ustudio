@@ -1,2 +1,1 @@
-local_images:
-  path: ustudio_thumbnails
+local_images_path: public://ustudio_thumbnails

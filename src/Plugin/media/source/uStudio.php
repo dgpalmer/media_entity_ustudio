@@ -120,14 +120,10 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
    * {@inheritdoc}
    */
   public function getMetadata(MediaInterface $media, $name) {
-    dpm('name');
-    dpm($name);
     if ($name == 'thumbnail_uri') {
       return $this->getMetadata($media, 'thumbnail_local');
     }
     $matches = $this->matchRegexp($media);
-    dpm('matches');
-    dpm($matches);
 
     if (!$matches['destination'] || !$matches['video']) {
       return FALSE;
@@ -179,7 +175,6 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
                 file_unmanaged_save_data((string) $thumbnail->getBody(), $local_uri, FILE_EXISTS_REPLACE);
                 return $local_uri;
               } catch (\Exception $e) {
-                dpm($e->getTraceAsString());
               }
             }
           }
@@ -188,7 +183,7 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
         case 'thumbnail_local_uri':
           if (isset($ustudio['thumbnail_url'])) {
 
-            return 'public://' . $this->configFactory->get('media_entity_ustudio.settings')->get('local_images') . '/' . $matches['destination'] . '.' . $matches['video'] . '.' . pathinfo(parse_url($ustudio['thumbnail_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
+            return $this->configFactory->get('media_entity_ustudio.settings')->get('local_images_path') . '/' . $matches['destination'] . '.' . $matches['video'] . '.' . pathinfo(parse_url($ustudio['thumbnail_url'], PHP_URL_PATH), PATHINFO_EXTENSION);
           }
           return FALSE;
 
