@@ -6,16 +6,16 @@ use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Class uStudio Settings.
+ * Class uStudioSettings.
  */
-class uStudio Settings extends ConfigFormBase {
+class uStudioSettings extends ConfigFormBase {
 
   /**
    * {@inheritdoc}
    */
   protected function getEditableConfigNames() {
     return [
-      'media_entity_ustudio.ustudio settings',
+      'media_entity_ustudio.settings',
     ];
   }
 
@@ -30,20 +30,27 @@ class uStudio Settings extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $config = $this->config('media_entity_ustudio.ustudio settings');
-    $form['ustudio_api_key'] = [
+    $config = $this->config('media_entity_ustudio.settings');
+    $form['access_token'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('uStudio API Key'),
+      '#title' => $this->t('uStudio Access Token'),
       '#maxlength' => 64,
       '#size' => 64,
-      '#default_value' => $config->get('ustudio_api_key'),
+      '#default_value' => $config->get('access_token'),
     ];
     $form['studio'] = [
       '#type' => 'select',
       '#title' => $this->t('Studio'),
-      '#options' => ['test' => $this->t('test')],
-      '#size' => 3,
+      '#options' => ['test studio' => $this->t('test studio')],
+      '#size' => 1,
       '#default_value' => $config->get('studio'),
+    ];
+    $form['collection'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Collection'),
+      '#options' => ['test collection' => $this->t('test collection')],
+      '#size' => 1,
+      '#default_value' => $config->get('collection'),
     ];
     $form['destination'] = [
       '#type' => 'select',
@@ -68,11 +75,11 @@ class uStudio Settings extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
-    $this->config('media_entity_ustudio.ustudio settings')
-      ->set('ustudio_api_key', $form_state->getValue('ustudio_api_key'))
+    $this->config('media_entity_ustudio.settings')
+      ->set('access_token', $form_state->getValue('access_tokens'))
       ->set('studio', $form_state->getValue('studio'))
+      ->set('collection', $form_state->getValue('collection'))
       ->set('destination', $form_state->getValue('destination'))
       ->save();
   }
-
 }
