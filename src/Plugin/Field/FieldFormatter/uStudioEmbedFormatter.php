@@ -8,7 +8,7 @@ use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Field\FormatterBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
-use Drupal\media_entity_ustudio\Plugin\media\source\uStudio;
+use Drupal\media_entity_ustudio\Plugin\media\Source\uStudio;
 use Drupal\media_entity_ustudio\uStudioEmbedFetcher;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

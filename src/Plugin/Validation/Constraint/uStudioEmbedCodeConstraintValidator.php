@@ -2,7 +2,7 @@
 
 namespace Drupal\media_entity_ustudio\Plugin\Validation\Constraint;
 
-use Drupal\media_entity_ustudio\Plugin\media\source\uStudio;
+use Drupal\media_entity_ustudio\Plugin\media\Source\uStudio;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
