@@ -2,10 +2,14 @@
 
 namespace Drupal\media_entity_ustudio\uStudio;
 
+use Drupal\Core\Cache\CacheBackendInterface;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use GuzzleHttp\Client;
+
 /**
  * uStudio API
  */
-class uStudioAPI {
+abstract class uStudioAPI {
 
   const USTUDIO_URL = 'http://app.ustudio.com';
 
