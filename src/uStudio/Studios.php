@@ -17,7 +17,7 @@ class Studios extends uStudioAPI implements StudiosInterface {
    */
   public function retrieveStudios() {
     $options = [
-      'url' => self::USTUDIO_API . '/studios'
+      'token' => $this->access_token
     ];
 
 
@@ -33,7 +33,7 @@ class Studios extends uStudioAPI implements StudiosInterface {
     try {
       $response = $this->httpClient->request(
         'GET',
-        self::USTUDIO_API . '/oembed?' . $queryParameter,
+        self::USTUDIO_API . '/studios?' . $queryParameter,
         ['timeout' => 5]
       );
       if ($response->getStatusCode() === 200) {
