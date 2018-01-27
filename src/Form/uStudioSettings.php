@@ -146,25 +146,7 @@ class uStudioSettings extends ConfigFormBase {
   public function retrieveStudios(array &$form, FormStateInterface $form_state) : array {
     $access_token = $form_state->getValue('access_token');
     $studios = $this->studios_fetcher->retrieveStudios($access_token);
-    $elem = [
-      '#type' => 'select',
-      '#title' => t('Studio'),
-      '#options' => $studios,
-      '#size' => 1,
-      '#required' => TRUE,
-      '#empty_value' => '',
-      '#default_value' => '',
-      '#ajax' => [
-        'callback' => '::retrieveCollections',
-        'event' => 'change',
-        'wrapper' => 'edit-collection',
-        'progress' => [
-          'type' => 'throbber',
-          'message' => t('Grabbing Collections for Studio...'),
-        ],
-      ],
-    ];
-    $form['studio_container']['studio'] = $elem;
+    $form['studio_container']['studio']['#options'] = $studios;
     return $form['studio_container'];
   }
 
