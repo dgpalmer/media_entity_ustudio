@@ -3,7 +3,7 @@
 namespace Drupal\media_entity_ustudio\uStudio;
 
 /**
- * uStudio Studios
+ * uStudio Destinations
  */
 interface DestinationsInterface {
 

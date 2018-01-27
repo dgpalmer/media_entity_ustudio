@@ -37,11 +37,6 @@ abstract class uStudioAPI {
   protected $loggerFactory;
 
   /**
-   * Access Token.
-   */
-  protected $access_token;
-
-  /**
    * uStudioAPI constructor.
    *
    * @param \GuzzleHttp\Client $client
@@ -55,7 +50,7 @@ abstract class uStudioAPI {
     $this->httpClient = $client;
     $this->loggerFactory = $loggerFactory;
     $this->cache = $cache;
-    $this->access_token = \Drupal::config('media_entity_ustudio.settings')->get('access_token');
+//    $this->access_token = \Drupal::config('media_entity_ustudio.settings')->get('access_token');
   }
 
 }

@@ -9,3 +9,14 @@ media_entity_ustudio.ustudio_settings:
   options:
     _admin_route: TRUE
 
+
+media_entity_ustudio.test:
+  path: '/admin/config/media_entity_ustudio/test'
+  defaults:
+    _form: '\Drupal\media_entity_ustudio\Form\test'
+    _title: 'test'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE
+
