@@ -205,16 +205,20 @@ class uStudioSettings extends ConfigFormBase {
    * @param FormStateInterface $form_state
    * @return array
    */
-  public function retrieveDestinationsAndCollections(array &$form, FormStateInterface $form_state) : array {
+  public function retrieveDestinationsAndCollections(array &$form, FormStateInterface $form_state) : array
+  {
     dpm('retrieveDestinationsAndCollections');
     $values = $form_state->getValues();
     $access_token = $values['access_token'];
     $studio = $values['studio'];
-    dpm($values);
     $collections = $this->fetcher->retrieveCollections($access_token, $studio);
-    $form['collections_destinations']['collection'] = $this->collectionSelect($collections);
+    if (!empty($collections)) {
+      $form['collections_destinations']['collection'] = $this->collectionSelect($collections);
+    }
     $destinations = $this->fetcher->retrieveDestinations($access_token, $studio);
-    $form['collections_destinations']['destination'] = $this->destinationSelect($destinations);
+    if (!empty($destinations)) {
+      $form['collections_destinations']['destination'] = $this->destinationSelect($destinations);
+    }
     return $form['collections_destinations'];
   }
 
