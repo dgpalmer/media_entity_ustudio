@@ -14,18 +14,17 @@ services:
     arguments:
       - ustudio_videos
 
-  media_entity_ustudio.studios_fetcher:
-    class: '\Drupal\media_entity_ustudio\uStudio\StudiosFetcher'
+  media_entity_ustudio.fetcher:
+    class: '\Drupal\media_entity_ustudio\uStudio\uStudioFetcher'
     arguments:
       - '@http_client'
       - '@logger.factory'
-      - '@media_entity_ustudio.cache.studios'
+      - '@media_entity_ustudio.cache.api'
 
-  media_entity_ustudio.cache.studios:
+  media_entity_ustudio.cache.api:
     class: '\Drupal\Core\Cache\CacheBackendInterface'
     tags:
       - { name: cache.bin, default_backend: cache.backend.chainedfast }
     factory: cache_factory:get
     arguments:
-      - studios
-
+      - data

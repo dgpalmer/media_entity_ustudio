@@ -2,14 +2,16 @@
 
 namespace Drupal\media_entity_ustudio\Form;
 
+use Drupal\Core\Ajax\ReplaceCommand;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\media_entity_ustudio\uStudio\StudiosFetcher;
+use Drupal\media_entity_ustudio\uStudio\uStudioFetcher;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use GuzzleHttp\Client;
+use Drupal\Core\Ajax\AjaxResponse;
 
 /**
  * Class uStudioSettings.
@@ -17,23 +19,23 @@ use GuzzleHttp\Client;
 class uStudioSettings extends ConfigFormBase {
 
   /**
-   * the Studios Fetcher
+   * uStudio Fetcher
    *
-   * @var \Drupal\media_entity_ustudio\uStudio\StudiosFetcher
+   * @var \Drupal\media_entity_ustudio\uStudio\uStudioFetcher
    */
-  protected $studios_fetcher;
+  protected $fetcher;
 
 
-  public function __construct(ConfigFactoryInterface $config_factory, StudiosFetcher $studios_fetcher)
+  public function __construct(ConfigFactoryInterface $config_factory, uStudioFetcher $fetcher)
   {
-    $this->studios_fetcher = $studios_fetcher;
+    $this->fetcher = $fetcher;
     parent::__construct($config_factory);
   }
 
   public static function create(ContainerInterface $container) {
     return new static(
       $container->get('config.factory'),
-      $container->get('media_entity_ustudio.studios_fetcher')
+      $container->get('media_entity_ustudio.fetcher')
     );
   }
 
@@ -58,67 +60,79 @@ class uStudioSettings extends ConfigFormBase {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('media_entity_ustudio.settings');
+    $form = parent::buildForm($form, $form_state);
+
+    // Helps with Ajax
+    $form['#tree'] = TRUE;
+    $form_state->setCached(FALSE);
+
+    /**
+     * Access Token
+     */
     $form['access_token'] = [
       '#type' => 'textfield',
       '#title' => $this->t('uStudio Access Token'),
       '#maxlength' => 64,
       '#size' => 64,
       '#default_value' => $config->get('access_token'),
-      '#ajax' => [
-        'callback' => '::retrieveStudios',
-        'event' => 'change',
-        'wrapper' => 'edit-studio',
-        'progress' => [
-          'type' => 'throbber',
-          'message' => t('Verifying uStudio Access Token...'),
-        ],
-      ],
     ];
-    $form['studio_container'] = [
+
+    /**
+     * Studios
+     */
+
+    // Check for an existing access token and store it for later usage
+    $access_token = $config->get('access_token');
+    if ($access_token) {
+
+      // Check which studios this token has access to
+      $studios = $this->fetcher->retrieveStudios($access_token);
+
+      // If this token has access to studios, show them in a list
+      if (!empty($studios)) {
+        $form['studio'] = $this->studioSelect($studios);
+        if ($studio = $config->get('studio')) {
+          $form['studio']['#default_value'] = $studio;
+        }
+      } else {
+        \Drupal\Core\Form\drupal_set_message('Access Token is invalid');
+      }
+    } else {
+      $form['actions']['submit']['#value'] = $this->t('Validate Acccess Token');
+    }
+
+    /**
+     * Collections And Destinations
+     */
+
+    $form['collections_destinations'] = [
       '#type' => 'container',
       '#attributes' => [
-        'id' => ['edit-studio']
+        'id' => ['edit-collections-destinations']
       ]
     ];
-    $form['studio_container']['studio'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Studio'),
-      '#options' => ['test studio' => $this->t('test studio')],
-      '#size' => 1,
-      '#default_value' =>  !empty($config->get('studio')) ? $config->get('studio') : '',
-      '#required' => TRUE,
-      '#empty_value' => '',
-      '#ajax' => [
-        'callback' => '::retrieveCollections',
-        'event' => 'change',
-        'wrapper' => 'edit-collection',
-        'progress' => [
-          'type' => 'throbber',
-          'message' => t('Grabbing Collections for Studio...'),
-        ],
-      ],
-    ];
-    $form['collection_container'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'id' => ['edit-colection']
-      ]
-    ];
-    $form['collection_container']['collection'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Collection'),
-      '#options' => ['test collection' => $this->t('test collection')],
-      '#size' => 1,
-      '#default_value' => $config->get('collection'),
-    ];
-    $form['destination'] = [
-      '#type' => 'select',
-      '#title' => $this->t('Destination'),
-      '#options' => ['test destination' => $this->t('test destination')],
-      '#size' => 1,
-      '#default_value' => $config->get('destination'),
-    ];
-    return parent::buildForm($form, $form_state);
+    // Check for an existing studio and store it for later usage
+    $studio = $config->get('studio');
+    if ($studio && $access_token) {
+
+      // Collections
+      $collections = $this->fetcher->retrieveCollections($access_token, $studio);
+      $form['collections_destinations']['collection'] = $this->collectionSelect($collections);
+      // If we have an existing collection
+      if ($collection = $config->get('collection')) {
+        $form['collections_destinations']['collection']['#default_value'] = $collection;
+      }
+
+      // Destinations
+      $destinations = $this->fetcher->retrieveDestinations($access_token, $studio);
+      $form['collections_destinations']['destination'] = $this->destinationSelect($destinations);
+      // If we have an existing configuration
+      if ($destination = $config->get('destination')) {
+        $form['collections_destinations']['destination']['#default_value'] = $destination;
+      }
+    }
+
+    return $form;
   }
 
   /**
@@ -143,24 +157,101 @@ class uStudioSettings extends ConfigFormBase {
   }
 
 
+  /**
+   * Helper Function to Retrieve Studios and Render the Form Element
+   *
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return array
+   */
   public function retrieveStudios(array &$form, FormStateInterface $form_state) : array {
+    dpm('retrieveStudios');
+
     $access_token = $form_state->getValue('access_token');
-    $studios = $this->studios_fetcher->retrieveStudios($access_token);
-    $form['studio_container']['studio']['#options'] = $studios;
-    return $form['studio_container'];
+    $studios = $this->fetcher->retrieveStudios($access_token);
+    $form['studio'] = $this->studioSelect($studios);
+    return $form['studio'];
   }
 
-  public function retrieveCollections(array &$form, FormStateInterface $form_state) : array {
-    dpm('retrieve collections called in form');
-    error_log('retrieve collections');
-    $access_token = $form_state->getValue('access_token');
-    $elem = [
+  /**
+   * Helper function to build a dropdown select for Studios
+   *
+   * @param $studios
+   * @return array
+   */
+  protected function studioSelect($studios) {
+    return [
       '#type' => 'select',
-      '#title' => t('Collection'),
-      '#options' => [1 => 1, 2 => 2, 3 => 3],
+      '#title' => $this->t('Default Studio'),
+      '#options' => $studios,
       '#size' => 1,
+      '#required' => TRUE,
+      '#ajax' => [
+        'callback' => '::retrieveDestinationsAndCollections',
+        'event' => 'change',
+        'wrapper' => 'edit-collections-destinations',
+        'progress' => [
+          'type' => 'throbber',
+          'message' => t('Grabbing Studio Destinations and Collections...'),
+        ],
+      ],
     ];
-    $form['collection_container']['collection'] = $elem;
-    return $form['collection_container'];
+  }
+
+  /**
+   * Helper Function to Retrieve Destinations and Render the Form Element
+   *
+   * @param array $form
+   * @param FormStateInterface $form_state
+   * @return array
+   */
+  public function retrieveDestinationsAndCollections(array &$form, FormStateInterface $form_state) : array {
+    dpm('retrieveDestinationsAndCollections');
+    $values = $form_state->getValues();
+    $access_token = $values['access_token'];
+    $studio = $values['studio'];
+    dpm($values);
+    $collections = $this->fetcher->retrieveCollections($access_token, $studio);
+    $form['collections_destinations']['collection'] = $this->collectionSelect($collections);
+    $destinations = $this->fetcher->retrieveDestinations($access_token, $studio);
+    $form['collections_destinations']['destination'] = $this->destinationSelect($destinations);
+    return $form['collections_destinations'];
+  }
+
+  /**
+   * Helper function to build a dropdown select for Collections
+   *
+   * @param $studios
+   * @return array
+   */
+  protected function collectionSelect($collections) {
+    return [
+      '#type' => 'select',
+      '#title' => $this->t('Default Collection'),
+      '#options' => $collections,
+      '#size' => 1,
+      '#required' => TRUE,
+      '#empty_value' => "",
+      '#ajax' => FALSE,
+    ];
+  }
+
+  /**
+   * Helper function to build a dropdown select for Destinations
+   *
+   * @param $studios
+   * @return array
+   */
+  protected function destinationSelect($destinations) {
+    dpm('destinationSelect');
+    return [
+      '#type' => 'select',
+      '#title' => $this->t('Default Destination'),
+      '#options' => $destinations,
+      '#size' => 1,
+      '#required' => TRUE,
+      '#empty_value' => "",
+      '#ajax' => FALSE,
+    ];
   }
 }
