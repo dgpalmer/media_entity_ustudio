@@ -94,8 +94,6 @@ class uStudioSettings extends ConfigFormBase {
         if ($studio = $config->get('studio')) {
           $form['studio']['#default_value'] = $studio;
         }
-      } else {
-        \Drupal\Core\Form\drupal_set_message('Access Token is invalid');
       }
     } else {
       $form['actions']['submit']['#value'] = $this->t('Validate Acccess Token');
@@ -139,6 +137,17 @@ class uStudioSettings extends ConfigFormBase {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    $access_token = $form_state->getValue('access_token');
+    if ($access_token) {
+      // Check which studios this token has access to
+      $studios = $this->fetcher->retrieveStudios($access_token);
+      if (empty($studios)) {
+        $form_state->setErrorByName('access_token', $this->t('Invalid Access Token'));
+      }
+    } else {
+      $form_state->setErrorByName('access_token', $this->t('Missing Access Token'));
+    }
+
     parent::validateForm($form, $form_state);
   }
 
@@ -165,7 +174,6 @@ class uStudioSettings extends ConfigFormBase {
    * @return array
    */
   public function retrieveStudios(array &$form, FormStateInterface $form_state) : array {
-    dpm('retrieveStudios');
 
     $access_token = $form_state->getValue('access_token');
     $studios = $this->fetcher->retrieveStudios($access_token);
@@ -207,7 +215,6 @@ class uStudioSettings extends ConfigFormBase {
    */
   public function retrieveDestinationsAndCollections(array &$form, FormStateInterface $form_state) : array
   {
-    dpm('retrieveDestinationsAndCollections');
     $values = $form_state->getValues();
     $access_token = $values['access_token'];
     $studio = $values['studio'];
