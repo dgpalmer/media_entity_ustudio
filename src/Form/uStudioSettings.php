@@ -110,23 +110,28 @@ class uStudioSettings extends ConfigFormBase {
       ]
     ];
     // Check for an existing studio and store it for later usage
-    $studio = $config->get('studio');
+    $studio = !empty($form_state->getValue('studio')) ? $form_state->getValue('studio') : $config->get('studio');
+
     if ($studio && $access_token) {
 
       // Collections
       $collections = $this->fetcher->retrieveCollections($access_token, $studio);
-      $form['collections_destinations']['collection'] = $this->collectionSelect($collections);
-      // If we have an existing collection
-      if ($collection = $config->get('collection')) {
-        $form['collections_destinations']['collection']['#default_value'] = $collection;
+      if (!empty($collections)) {
+        $form['collections_destinations']['collection'] = $this->collectionSelect($collections);
+        // If we have an existing collection
+        if ($collection = $config->get('collection')) {
+          $form['collections_destinations']['collection']['#default_value'] = $collection;
+        }
       }
 
       // Destinations
       $destinations = $this->fetcher->retrieveDestinations($access_token, $studio);
-      $form['collections_destinations']['destination'] = $this->destinationSelect($destinations);
-      // If we have an existing configuration
-      if ($destination = $config->get('destination')) {
-        $form['collections_destinations']['destination']['#default_value'] = $destination;
+      if (!empty($destinations)) {
+        $form['collections_destinations']['destination'] = $this->destinationSelect($destinations);
+        // If we have an existing configuration
+        if ($destination = $config->get('destination')) {
+          $form['collections_destinations']['destination']['#default_value'] = $destination;
+        }
       }
     }
 
@@ -157,11 +162,12 @@ class uStudioSettings extends ConfigFormBase {
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
+    $values = $form_state->getValues();
     $this->config('media_entity_ustudio.settings')
-      ->set('access_token', $form_state->getValue('access_token'))
-      ->set('studio', $form_state->getValue('studio'))
-      ->set('collection', $form_state->getValue('collection'))
-      ->set('destination', $form_state->getValue('destination'))
+      ->set('access_token', $values['access_token'])
+      ->set('studio', $values['studio'])
+      ->set('collection', $values['collections_destinations']['collection'])
+      ->set('destination', $values['collections_destinations']['destination'])
       ->save();
   }
 
@@ -215,17 +221,6 @@ class uStudioSettings extends ConfigFormBase {
    */
   public function retrieveDestinationsAndCollections(array &$form, FormStateInterface $form_state) : array
   {
-    $values = $form_state->getValues();
-    $access_token = $values['access_token'];
-    $studio = $values['studio'];
-    $collections = $this->fetcher->retrieveCollections($access_token, $studio);
-    if (!empty($collections)) {
-      $form['collections_destinations']['collection'] = $this->collectionSelect($collections);
-    }
-    $destinations = $this->fetcher->retrieveDestinations($access_token, $studio);
-    if (!empty($destinations)) {
-      $form['collections_destinations']['destination'] = $this->destinationSelect($destinations);
-    }
     return $form['collections_destinations'];
   }
 
@@ -243,7 +238,6 @@ class uStudioSettings extends ConfigFormBase {
       '#size' => 1,
       '#required' => TRUE,
       '#empty_value' => "",
-      '#ajax' => FALSE,
     ];
   }
 
@@ -254,7 +248,6 @@ class uStudioSettings extends ConfigFormBase {
    * @return array
    */
   protected function destinationSelect($destinations) {
-    dpm('destinationSelect');
     return [
       '#type' => 'select',
       '#title' => $this->t('Default Destination'),
@@ -262,7 +255,6 @@ class uStudioSettings extends ConfigFormBase {
       '#size' => 1,
       '#required' => TRUE,
       '#empty_value' => "",
-      '#ajax' => FALSE,
     ];
   }
 }

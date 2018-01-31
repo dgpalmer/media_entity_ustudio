@@ -60,7 +60,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
    * {@inheritdoc}
    */
   public function retrieveStudios($access_token) {
-    dpm('retrieveStudios Fetcher');
     $options = [
       'token' => $access_token
     ];
@@ -117,7 +116,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
    * {@inheritdoc}
    */
   public function retrieveCollections($access_token, $studio) {
-    dpm('retrieveCollections fetcher');
     $options = [
       'token' => $access_token
     ];
@@ -175,7 +173,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
    * {@inheritdoc}
    */
   public function retrieveDestinations($access_token, $studio) {
-    dpm('retrieveDestinations fetcher');
     $options = [
       'token' => $access_token
     ];
