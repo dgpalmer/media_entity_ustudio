@@ -53,15 +53,31 @@ class uStudioUpload extends FieldItemBase {
    * {@inheritdoc}
    */
   public function preSave() {
-    if ($this->video_uid !== NULL) {
-      $this->video_uid = trim($this->video_uid);
-    }
+    dpm('preSave');
+    $config = \Drupal::config('media_entity_ustudio.settings');
+    $access_token = $config->get('access_token');
+    $fetcher = \Drupal::service('media_entity_ustudio.fetcher');
+
+    dpm($access_token);
+    $media = $this->getEntity();
+    $label = $media->label();
+    $data = [
+      "title" => $label,
+      "description" => "This is the first test from asf8.dd",
+      "keywords" => ["test", "donovan", "drupal", "2132231"],
+      "category" => "entertainment"
+    ];
+    dpm($data);
     if ($this->destination_uid !== NULL) {
       $this->destination_uid = trim($this->destination_uid);
     }
+    dpm($this->studio_uid);
     if ($this->studio_uid !== NULL) {
       $this->studio_uid = trim($this->studio_uid);
+      $video = $fetcher->createVideo($access_token, $this->studio_uid, $data);
     }
+
+
   }
 
   /**
@@ -76,6 +92,5 @@ class uStudioUpload extends FieldItemBase {
   public static function mainPropertyName() {
     return 'video_uid';
   }
-
 }
 

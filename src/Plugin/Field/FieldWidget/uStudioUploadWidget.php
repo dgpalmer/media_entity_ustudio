@@ -44,8 +44,9 @@ class uStudioUploadWidget extends WidgetBase {
 
       $fetcher = \Drupal::service('media_entity_ustudio.fetcher');
       $studios = $fetcher->retrieveStudios($access_token);
-      $studio = !empty($form_state->getValue('studio')) ? $form_state->getValue('studio') : $config->get('studio');
-      $element['studio'] = [
+      $values = $form_state->getValues();
+      $studio = !empty($values['ustudio_upload'][0]['studio_uid']) ? $values['ustudio_upload'][0]['studio_uid'] : $config->get('studio');
+      $element['studio_uid'] = [
         '#type' => 'select',
         '#title' => $this->t('Default Studio'),
         '#options' => $studios,
@@ -53,9 +54,9 @@ class uStudioUploadWidget extends WidgetBase {
         '#required' => TRUE,
         '#default_value' => $studio,
         '#ajax' => [
-          'callback' => '::retrieveDestinationsAndCollections',
+          'callback' => [get_class($this), 'retrieveDestinations'],
           'event' => 'change',
-          'wrapper' => 'edit-collections~-destinations',
+          'wrapper' => 'edit-destination-uid',
           'progress' => [
             'type' => 'throbber',
             'message' => t('Grabbing Studio Destinations and Collections...'),
@@ -63,35 +64,26 @@ class uStudioUploadWidget extends WidgetBase {
         ],
       ];
 
-      /**
-       * Collections And Destinations
-       */
-
-      $form['collections_destinations'] = [
+      $element['destination'] = [
         '#type' => 'container',
         '#attributes' => [
-          'id' => ['edit-collections-destinations']
+          'id' => 'edit-destination-uid'
         ]
       ];
-      if ($studio && $access_token) {
 
-        // Collections
-        $collections = $fetcher->retrieveCollections($access_token, $studio);
-        if (!empty($collections)) {
-          $element['collections_destinations']['collection'] = $this->collectionSelect($collections);
-          // If we have an existing collection
-          if ($collection = $config->get('collection')) {
-            $element['collections_destinations']['collection']['#default_value'] = $collection;
-          }
-        }
+      /**
+       * Destinations
+       */
+
+      if ($studio && $access_token) {
 
         // Destinations
         $destinations = $fetcher->retrieveDestinations($access_token, $studio);
         if (!empty($destinations)) {
-          $element['collections_destinations']['destination'] = $this->destinationSelect($destinations);
+          $element['destination']['destination_uid'] = $this->destinationSelect($destinations);
           // If we have an existing configuration
           if ($destination = $config->get('destination')) {
-            $element['collections_destinations']['destination']['#default_value'] = $destination;
+            $element['destination']['destination_uid']['#default_value'] = $destination;
           }
         }
       }
@@ -122,11 +114,10 @@ class uStudioUploadWidget extends WidgetBase {
    *
    * @param array $form
    * @param FormStateInterface $form_state
-   * @return array
    */
-  public function retrieveDestinationsAndCollections(array &$form, FormStateInterface $form_state) : array
-  {
-    return $form['collections_destinations'];
+  public static function retrieveDestinations(array $form, FormStateInterface $form_state) {
+    dpm('retrieveDestinations ajax');
+    return $form['ustudio_upload']['widget'][0]['destination'];
   }
 
   /**
@@ -155,7 +146,7 @@ class uStudioUploadWidget extends WidgetBase {
   protected function destinationSelect($destinations) {
     return [
       '#type' => 'select',
-      '#title' => $this->t('Default Destination'),
+      '#title' => $this->t('Destination'),
       '#options' => $destinations,
       '#size' => 1,
       '#required' => TRUE,

@@ -41,6 +41,11 @@ class uStudioFetcher implements uStudioFetcherInterface {
   protected $loggerFactory;
 
   /**
+   * Query Options
+   */
+  protected $options;
+
+  /**
    * uStudioAPI constructor.
    *
    * @param \GuzzleHttp\Client $client
@@ -54,6 +59,7 @@ class uStudioFetcher implements uStudioFetcherInterface {
     $this->httpClient = $client;
     $this->loggerFactory = $loggerFactory;
     $this->cache = $cache;
+
   }
 
   /**
@@ -223,4 +229,72 @@ class uStudioFetcher implements uStudioFetcherInterface {
     return FALSE;
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  public function createVideo($access_token, $studio, $attributes) {
+    dpm('createVideo');
+    $options = [
+      'token' => $access_token
+    ];
+    $queryParameter = UrlHelper::buildQuery($options);
+
+    $video = json_encode($attributes);
+    dpm($video);
+    dpm(        self::USTUDIO_API . '/studios/' . $studio . '/videos?' . $queryParameter);
+    try {
+
+      $response = $this->httpClient->request(
+        'POST',
+        self::USTUDIO_API . '/studios/' . $studio . '/videos?' . $queryParameter,
+        ['timeout' => 5, 'body' => $video]
+      );
+
+      $status = $response->getStatusCode();
+      dpm($status);
+      if ($response->getStatusCode() === 201) {
+        $data = Json::decode($response->getBody()->getContents());
+        return $data;
+      }
+    }
+    catch (RequestException $e) {
+      dpm(Error::decodeException($e));
+      $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
+    }
+
+  }
+  /**
+   * {@inheritdoc}
+   */
+  public function uploadVideo($access_token, $studio, $video, $attributes) {
+    dpm('uploadVideo');
+    $options = [
+      'token' => $access_token
+    ];
+    $queryParameter = UrlHelper::buildQuery($options);
+
+    $video = json_encode($attributes);
+    dpm($video);
+    dpm(        self::USTUDIO_API . '/studios/' . $studio . '/videos/ '. $video . '/asset?' . $queryParameter);
+    try {
+
+      $response = $this->httpClient->request(
+        'POST',
+        self::USTUDIO_API . '/studios/' . $studio . '/videos?' . $queryParameter,
+        ['timeout' => 5, 'body' => $video]
+      );
+
+      $status = $response->getStatusCode();
+      dpm($status);
+      if ($response->getStatusCode() === 201) {
+        $data = Json::decode($response->getBody()->getContents());
+        return $data;
+      }
+    }
+    catch (RequestException $e) {
+      dpm(Error::decodeException($e));
+      $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
+    }
+
+  }
 }
