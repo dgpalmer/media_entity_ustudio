@@ -2,6 +2,8 @@
 
 namespace Drupal\media_entity_ustudio\uStudio;
 
+use Drupal\file\FileInterface;
+
 /**
  * uStudio Studios
  */
@@ -42,9 +44,11 @@ interface uStudioFetcherInterface {
   public function retrieveDestinations($access_token, $studio);
 
   /**
-   * Perform GET Request to retrieve list of Destinations
+   * Perform POST Request to create video
    *
    * @param string $access_token
+   *
+   * @param string studio
    *
    * @param string $attributes
    *
@@ -52,4 +56,34 @@ interface uStudioFetcherInterface {
    *  Representation of the new Video resource
    */
   public function createVideo($access_token, $studio, $attributes);
+
+  /**
+   * Perform POST Request to upload video
+   *
+   * @param string $access_token
+   *
+   * @param string $upload_url
+   *
+   * @param File @file
+   *
+   * @return array
+   *  Representation of the uploaded video resource
+   */
+  public function uploadVideo($access_token, $upload_url, FileInterface $file);
+
+  /**
+   * Perform GET Request to retrieve list of Destinations
+   *
+   * @param string $access_token
+   *
+   * @param string $studio
+   *
+   * @param string $video
+   *
+   * @param string $destination
+   *
+   * @return array
+   *  Representation of the new Video resource
+   */
+  public function publishVideo($access_token, $studio, $video, $destination);
 }

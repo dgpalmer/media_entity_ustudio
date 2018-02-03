@@ -33,13 +33,36 @@ class uStudioUploadWidget extends WidgetBase {
     $access_token = $config->get('access_token');
     if ($access_token) {
 
-      $element['ustudio_upload'] = [
-        '#type' => 'file',
+      $element['upload'] = [
+        '#type' => 'container',
+        '#attributes' => [
+          'id' => 'edit-ustudio-upload'
+        ]
+      ];
+      $element['upload']['upload_file'] = [
+        '#type' => 'managed_file',
         '#title' => $element['#title'],
         '#default_value' => $items[$delta]->alias,
         '#required' => $element['#required'],
         '#maxlength' => 255,
         '#description' => $this->t('Specify an alternative path by which this data can be accessed. For example, type "/about" when writing an about page.'),
+        '#upload_location' => 'temporary://ustudio_videos',
+        '#upload_validators' => [
+          'file_validate_extensions' => ['mp4'],
+        ],
+      ];
+      $element['upload']['upload_submit'] = [
+        '#type' => 'submit',
+        '#value' => $this->t('Upload File'),
+        '#ajax' => [
+          'callback' =>  [get_class($this), 'storeFileForUpload'],
+          'event' => 'click',
+          'wrapper' => 'edit-ustudio-upload',
+          'progress' => [
+            'type' => 'throbber',
+            'message' => t('Uploading to uStudio'),
+          ],
+        ]
       ];
 
       $fetcher = \Drupal::service('media_entity_ustudio.fetcher');
@@ -89,6 +112,13 @@ class uStudioUploadWidget extends WidgetBase {
       }
     }
     return $element;
+  }
+
+  public function storeFileForUpload(array $form, FormStateInterface $form_state) {
+    dpm('storeFileForUpload');
+    $values = $form_state->getValues();
+    dpm($values);
+    return $form['ustudio_upload']['widget'][0]['upload'];
   }
 
   /**

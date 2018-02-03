@@ -7,6 +7,7 @@ use Drupal\Component\Serialization\Json;
 use Drupal\Core\Utility\Error;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Logger\LoggerChannelFactoryInterface;
+use Drupal\file\FileInterface;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 
@@ -240,8 +241,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
     $queryParameter = UrlHelper::buildQuery($options);
 
     $video = json_encode($attributes);
-    dpm($video);
-    dpm(        self::USTUDIO_API . '/studios/' . $studio . '/videos?' . $queryParameter);
     try {
 
       $response = $this->httpClient->request(
@@ -251,9 +250,9 @@ class uStudioFetcher implements uStudioFetcherInterface {
       );
 
       $status = $response->getStatusCode();
-      dpm($status);
       if ($response->getStatusCode() === 201) {
         $data = Json::decode($response->getBody()->getContents());
+        dpm($data);
         return $data;
       }
     }
@@ -266,22 +265,25 @@ class uStudioFetcher implements uStudioFetcherInterface {
   /**
    * {@inheritdoc}
    */
-  public function uploadVideo($access_token, $studio, $video, $attributes) {
+  public function uploadVideo($access_token, $upload_url, FileInterface $file) {
     dpm('uploadVideo');
     $options = [
       'token' => $access_token
     ];
     $queryParameter = UrlHelper::buildQuery($options);
 
-    $video = json_encode($attributes);
-    dpm($video);
-    dpm(        self::USTUDIO_API . '/studios/' . $studio . '/videos/ '. $video . '/asset?' . $queryParameter);
+    $multipart_form = [
+      [
+        'name' => 'file',
+        'contents' => fopen($file->getFileUri(), 'r'),
+        'filename' => $file->getFilename()
+      ]
+    ];
     try {
-
       $response = $this->httpClient->request(
         'POST',
-        self::USTUDIO_API . '/studios/' . $studio . '/videos?' . $queryParameter,
-        ['timeout' => 5, 'body' => $video]
+        $upload_url . '?' . $queryParameter,
+        ['multipart' => $multipart_form]
       );
 
       $status = $response->getStatusCode();
@@ -295,6 +297,31 @@ class uStudioFetcher implements uStudioFetcherInterface {
       dpm(Error::decodeException($e));
       $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
     }
+  }
 
+  public function publishVideo($access_token, $studio, $video, $destination) {
+    $options = [
+      'token' => $access_token
+    ];
+    $queryParameter = UrlHelper::buildQuery($options);
+
+    try {
+      $response = $this->httpClient->request(
+        'POST',
+        self::USTUDIO_API . '/studios/' . $studio . '/videos?' . $queryParameter,
+        ['multipart' => $multipart_form]
+      );
+
+      $status = $response->getStatusCode();
+      dpm($status);
+      if ($response->getStatusCode() === 201) {
+        $data = Json::decode($response->getBody()->getContents());
+        return $data;
+      }
+    }
+    catch (RequestException $e) {
+      dpm(Error::decodeException($e));
+      $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
+    }
   }
 }

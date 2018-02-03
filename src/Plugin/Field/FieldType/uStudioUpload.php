@@ -7,6 +7,7 @@ use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\Field\FieldStorageDefinitionInterface;
 use Drupal\Core\Field\FieldItemBase;
 use Drupal\Core\TypedData\DataDefinition;
+use Drupal\file\Entity\File;
 
 /**
  * Defines the 'path' entity field type.
@@ -53,21 +54,25 @@ class uStudioUpload extends FieldItemBase {
    * {@inheritdoc}
    */
   public function preSave() {
-    dpm('preSave');
     $config = \Drupal::config('media_entity_ustudio.settings');
     $access_token = $config->get('access_token');
     $fetcher = \Drupal::service('media_entity_ustudio.fetcher');
 
-    dpm($access_token);
     $media = $this->getEntity();
     $label = $media->label();
+    $ustudio_upload_field = $media->get('ustudio_upload');
+    $values = $ustudio_upload_field->getValue();
+    $file = File::load($values[0]['upload']['upload_file'][0]);
+
+
+    dpm($values);
+//    dpm($ustudio_upload_field[0]['ustudio_upload']);
     $data = [
       "title" => $label,
       "description" => "This is the first test from asf8.dd",
       "keywords" => ["test", "donovan", "drupal", "2132231"],
       "category" => "entertainment"
     ];
-    dpm($data);
     if ($this->destination_uid !== NULL) {
       $this->destination_uid = trim($this->destination_uid);
     }
@@ -75,8 +80,10 @@ class uStudioUpload extends FieldItemBase {
     if ($this->studio_uid !== NULL) {
       $this->studio_uid = trim($this->studio_uid);
       $video = $fetcher->createVideo($access_token, $this->studio_uid, $data);
+      $this->video_uid = $video['uid'];
+      $upload = $fetcher->uploadVideo($access_token, $video['upload_url'], $file);
+      dpm($upload);
     }
-
 
   }
 
