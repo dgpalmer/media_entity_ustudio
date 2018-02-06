@@ -268,7 +268,8 @@ class uStudioFetcher implements uStudioFetcherInterface {
   public function uploadVideo($access_token, $upload_url, FileInterface $file) {
     dpm('uploadVideo');
     $options = [
-      'token' => $access_token
+      'token' => $access_token,
+      'X-Progress-ID' => 'upload_progress',
     ];
     $queryParameter = UrlHelper::buildQuery($options);
 
@@ -287,7 +288,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
       );
 
       $status = $response->getStatusCode();
-      dpm($status);
       if ($response->getStatusCode() === 201) {
         $data = Json::decode($response->getBody()->getContents());
         return $data;
@@ -298,30 +298,97 @@ class uStudioFetcher implements uStudioFetcherInterface {
       $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
     }
   }
-
-  public function publishVideo($access_token, $studio, $video, $destination) {
+  /**
+   * {@inheritdoc}
+   */
+  public function uploadVideoProgress($access_token, $studio, $video) {
+    dpm('uploadVideoProgress');
     $options = [
-      'token' => $access_token
+      'token' => $access_token,
+      'X-Progress-ID' => 'upload_progress',
+      'callback' => 'trackUpload',
     ];
     $queryParameter = UrlHelper::buildQuery($options);
 
     try {
       $response = $this->httpClient->request(
+        'GET',
+        self::USTUDIO_API . '/studios/' . $studio . '/videos/' . $video. '/asset/progress?' . $queryParameter
+      );
+
+      if ($response->getStatusCode() === 200) {
+        $data = Json::decode($response->getBody()->getContents());
+        return $data;
+      }
+    }
+    catch (RequestException $e) {
+      dpm(Error::decodeException($e));
+      $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function publishVideo($access_token, $studio, $destination, $video) {
+    $options = [
+      'token' => $access_token
+    ];
+    $queryParameter = UrlHelper::buildQuery($options);
+
+    $body = json_encode(['video_uid' => $video]);
+
+    try {
+      $response = $this->httpClient->request(
         'POST',
-        self::USTUDIO_API . '/studios/' . $studio . '/videos?' . $queryParameter,
-        ['multipart' => $multipart_form]
+        self::USTUDIO_API . '/studios/' . $studio . '/destinations/' . $destination . '/videos?' . $queryParameter,
+        ['body' => $body]
       );
 
       $status = $response->getStatusCode();
       dpm($status);
       if ($response->getStatusCode() === 201) {
         $data = Json::decode($response->getBody()->getContents());
-        return $data;
       }
     }
     catch (RequestException $e) {
       dpm(Error::decodeException($e));
       $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
     }
+
+    if (isset($data)) {
+      return $data;
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function fetchVideoConfig($destination, $video) {
+    dpm('fetchVideoConfig');
+    try {
+      $response = $this->httpClient->request(
+        'GET',
+        self::USTUDIO_URL . '/embed/' . $destination. '/' . $video . '/config.json',
+        ['timeout' => 5]
+      );
+      if ($response->getStatusCode() === 200) {
+        $data = Json::decode($response->getBody()->getContents());
+      }
+    }
+    catch (RequestException $e) {
+      $this->loggerFactory->get('media_entity_ustudio')->error('Could not retrieve config.json');
+    }
+
+    if (isset($data)) {
+      return $data;
+    }
+    return FALSE;
+
   }
 }
+

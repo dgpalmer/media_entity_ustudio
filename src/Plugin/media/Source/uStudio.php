@@ -135,6 +135,7 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
 
     // If we have auth settings return the other fields.
     if ($ustudio = $this->fetcher->fetchUStudioEmbed($matches['destination'], $matches['video'])) {
+      dpm($ustudio);
       switch ($name) {
         case 'id':
           if (isset($ustudio['media_id'])) {
@@ -149,7 +150,8 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
           return FALSE;
 
         case 'thumbnail':
-          return (string) $ustudio['thumbnail_url'];
+          $config = $this->fetcher->fetchUStudioConfig($matches['destination'], $matches['video']);
+          return (string) $config['images'][0]['image_url'];
 
         case 'thumbnail_local':
           $local_uri = $this->getMetadata($media, 'thumbnail_local_uri');
@@ -164,7 +166,6 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
               file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
 
               $image_url = $this->getMetadata($media, 'thumbnail');
-              // $image_url = "https://i.imgur.com/Ii7m3W7.jpg";
 
               try {
                 $options = [

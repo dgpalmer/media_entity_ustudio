@@ -29,6 +29,8 @@ class uStudioUploadWidget extends WidgetBase {
     $element += [
       '#element_validate' => [[get_class($this), 'validateFormElement']],
     ];
+    $element['#attached']['library'][] = 'media_entity_ustudio/drupal.uStudio';
+
     $config = \Drupal::config('media_entity_ustudio.settings');
     $access_token = $config->get('access_token');
     if ($access_token) {
@@ -50,6 +52,11 @@ class uStudioUploadWidget extends WidgetBase {
         '#upload_validators' => [
           'file_validate_extensions' => ['mp4'],
         ],
+      ];
+      $progress_bar = '<div id=\"upload-progress\" class=\"upload-progress\"><div class=\"upload-progress-bar\" id=\"upload-progress-bar\"></div></div>';
+      $element['upload']['progress'] = [
+        '#type' => 'item',
+        '#markup' => $progress_bar
       ];
       $element['upload']['upload_submit'] = [
         '#type' => 'submit',
@@ -117,7 +124,9 @@ class uStudioUploadWidget extends WidgetBase {
   public function storeFileForUpload(array $form, FormStateInterface $form_state) {
     dpm('storeFileForUpload');
     $values = $form_state->getValues();
-    dpm($values);
+    $studio = $values['ustudio_upload'][0]['studio_uid'];
+    $destination = $values['ustudio_upload'][0]['destiantion']['destination_uid'];
+    $fetcher = \Drupal::service('media_entity_ustudio.fetcher');
     return $form['ustudio_upload']['widget'][0]['upload'];
   }
 

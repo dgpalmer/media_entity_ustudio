@@ -62,27 +62,31 @@ class uStudioUpload extends FieldItemBase {
     $label = $media->label();
     $ustudio_upload_field = $media->get('ustudio_upload');
     $values = $ustudio_upload_field->getValue();
-    $file = File::load($values[0]['upload']['upload_file'][0]);
+    if ($file = File::load($values[0]['upload']['upload_file'][0])) {
+      $data = [
+        "title" => $label,
+        "description" => "This is the first test from asf8.dd",
+        "keywords" => ["test", "donovan", "drupal", "2132231"],
+        "category" => "entertainment"
+      ];
+      if ($this->destination_uid !== NULL) {
+        $this->destination_uid = trim($this->destination_uid);
+      }
+      if ($this->studio_uid !== NULL) {
+        $this->studio_uid = trim($this->studio_uid);
+        $this->destination_uid = $values[0]['destination']['destination_uid'];
+        $video = $fetcher->createVideo($access_token, $this->studio_uid, $data);
+        $this->video_uid = $video['uid'];
+        $upload = $fetcher->uploadVideo($access_token, $video['upload_url'], $file);
+        $progress = $fetcher->uploadVideoProgress($access_token, $this->studio_uid, $this->video_uid);
+        $publish = $fetcher->publishVideo($access_token, $this->studio_uid, $this->destination_uid, $video['uid']);
+        $embed_code = $media->get('embed_code');
+        $embed_code_value = "http://embed.ustudio.com/embed/" . $this->destination_uid . "/" . $this->video_uid;
+        $embed_code->setValue($embed_code_value);
+        $config = $fetcher->fetchVideoConfig($this->destination_uid, $this->video_uid);
+        dpm($config);
 
-
-    dpm($values);
-//    dpm($ustudio_upload_field[0]['ustudio_upload']);
-    $data = [
-      "title" => $label,
-      "description" => "This is the first test from asf8.dd",
-      "keywords" => ["test", "donovan", "drupal", "2132231"],
-      "category" => "entertainment"
-    ];
-    if ($this->destination_uid !== NULL) {
-      $this->destination_uid = trim($this->destination_uid);
-    }
-    dpm($this->studio_uid);
-    if ($this->studio_uid !== NULL) {
-      $this->studio_uid = trim($this->studio_uid);
-      $video = $fetcher->createVideo($access_token, $this->studio_uid, $data);
-      $this->video_uid = $video['uid'];
-      $upload = $fetcher->uploadVideo($access_token, $video['upload_url'], $file);
-      dpm($upload);
+      }
     }
 
   }

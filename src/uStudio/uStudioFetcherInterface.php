@@ -78,12 +78,12 @@ interface uStudioFetcherInterface {
    *
    * @param string $studio
    *
-   * @param string $video
-   *
    * @param string $destination
+   *
+   * @param string $video
    *
    * @return array
    *  Representation of the new Video resource
    */
-  public function publishVideo($access_token, $studio, $video, $destination);
+  public function publishVideo($access_token, $studio, $destination, $video);
 }

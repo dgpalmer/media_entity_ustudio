@@ -105,5 +105,28 @@ class uStudioEmbedFetcher implements uStudioEmbedFetcherInterface {
     return FALSE;
   }
 
+  public function fetchUStudioConfig($destination, $video) {
+    dpm('fetchUStudioConfig');
+    try {
+      $response = $this->httpClient->request(
+        'GET',
+        self::USTUDIO_URL . '/embed/' . $destination. '/' . $video . '/config.json',
+        ['timeout' => 5]
+      );
+      if ($response->getStatusCode() === 200) {
+        $data = Json::decode($response->getBody()->getContents());
+      }
+    }
+    catch (RequestException $e) {
+      $this->loggerFactory->get('media_entity_ustudio')->error('Could not retrieve config.json');
+    }
+
+    if (isset($data)) {
+      return $data;
+    }
+    return FALSE;
+
+  }
+
 }
 

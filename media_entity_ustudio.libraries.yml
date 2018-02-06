@@ -1,16 +1,16 @@
-uStudio:
+drupal.uStudio:
   version: VERSION
   js:
-    'js/uStudio.js': {}
+    js/uStudio.js: {}
   dependencies:
     - core/drupal
     - core/jquery
     - media_entity_ustudio/ustudio.embeds
 ustudio.embeds:
-  remote: //platform.ustudio.com/en_US/embeds.js
+  remote: https://platform.ustudio.com/en_US/embeds.js
   version: 1.0.0
   license:
     name: MIT
     gpl-compatible: true
   js:
-    //platform.ustudio.com/en_US/embeds.js: { type: external, minified: true }
+    https://platform.ustudio.com/en_US/embeds.js: { type: external, minified: true }
