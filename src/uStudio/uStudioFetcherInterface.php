@@ -72,6 +72,18 @@ interface uStudioFetcherInterface {
   public function uploadVideo($access_token, $upload_url, FileInterface $file);
 
   /**
+   * Perform POST Request to upload video
+   *
+   * @param string $access_token
+   *
+   * @param string $upload_url
+   *
+   * @return array
+   *  Representation of the video upload progress
+   */
+  public function  uploadVideoProgress($access_token, $upload_url);
+
+  /**
    * Perform GET Request to retrieve list of Destinations
    *
    * @param string $access_token

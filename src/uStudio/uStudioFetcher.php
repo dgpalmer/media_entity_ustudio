@@ -287,7 +287,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
         ['multipart' => $multipart_form]
       );
 
-      $status = $response->getStatusCode();
       if ($response->getStatusCode() === 201) {
         $data = Json::decode($response->getBody()->getContents());
         return $data;
@@ -301,7 +300,7 @@ class uStudioFetcher implements uStudioFetcherInterface {
   /**
    * {@inheritdoc}
    */
-  public function uploadVideoProgress($access_token, $studio, $video) {
+  public function uploadVideoProgress($access_token, $upload_url) {
     dpm('uploadVideoProgress');
     $options = [
       'token' => $access_token,
@@ -313,7 +312,7 @@ class uStudioFetcher implements uStudioFetcherInterface {
     try {
       $response = $this->httpClient->request(
         'GET',
-        self::USTUDIO_API . '/studios/' . $studio . '/videos/' . $video. '/asset/progress?' . $queryParameter
+        $upload_url . '/progress?' . $queryParameter
       );
 
       if ($response->getStatusCode() === 200) {
@@ -323,7 +322,7 @@ class uStudioFetcher implements uStudioFetcherInterface {
     }
     catch (RequestException $e) {
       dpm(Error::decodeException($e));
-      $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
+      $this->loggerFactory->get('media_entity_ustudio')->error("Could not retrieve video upload status.", Error::decodeException($e));
     }
 
     return FALSE;
@@ -347,8 +346,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
         ['body' => $body]
       );
 
-      $status = $response->getStatusCode();
-      dpm($status);
       if ($response->getStatusCode() === 201) {
         $data = Json::decode($response->getBody()->getContents());
       }

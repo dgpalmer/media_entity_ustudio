@@ -55,22 +55,9 @@ function media_entity_ustudio_form_media_ustudio_edit_form_alter(&$form, \Drupal
  */
 function media_entity_ustudio_alter_media_form(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
   dpm('form alter');
-  $media = $form_state->getFormObject()->getEntity();
-  $form['ustudio_upload_settings'] = [
-    '#type' => 'details',
-    '#title' => t('uStudio Upload settings'),
-    '#open' => !empty($form['ustudio_upload']['widget'][0]['video_uid']['#value']),
-    '#group' => 'advanced',
-    '#access' => !empty($form['ustudio_upload']['#access']) && $media->hasField('ustudio_upload') && $media->get('ustudio_upload')->access('edit'),
-    '#attributes' => [
-      'class' => ['ustudio-upload-form'],
-    ],
-    '#attached' => [
-//      'library' => ['path/drupal.path'],
-    ],
-    '#weight' => 30,
-  ];
-  $form['ustudio_upload']['#group'] = 'usudio_upload_settings';
+  $values = $form_state->getValues();
+  dpm($values);
+//  $form['embed_code']['#value'] = $values['ustudio_upload'][0]['upload']['link'];
 }
 
 /**

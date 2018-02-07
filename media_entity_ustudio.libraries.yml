@@ -1,7 +1,9 @@
 drupal.uStudio:
   version: VERSION
   js:
-    js/uStudio.js: {}
+    js/ustudio.js: {}
+  css:
+    css/ustudio.css: {}
   dependencies:
     - core/drupal
     - core/jquery

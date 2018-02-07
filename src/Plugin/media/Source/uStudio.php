@@ -135,7 +135,6 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
 
     // If we have auth settings return the other fields.
     if ($ustudio = $this->fetcher->fetchUStudioEmbed($matches['destination'], $matches['video'])) {
-      dpm($ustudio);
       switch ($name) {
         case 'id':
           if (isset($ustudio['media_id'])) {
