@@ -116,7 +116,7 @@ class uStudioUploadWidget extends WidgetBase {
         '#type' => 'item',
         '#markup' => $file_upload,
       ];*/
-      $progress_bar = '<div id=\"upload-progress\" class=\"upload-progress\"><div class=\"upload-progress-bar\" id=\"upload-progress-bar\"></div></div>';
+      $progress_bar = '<div><div id="upload-button"><span class="btn">Upload to Ustudio</span></div><div id=\"upload-progress\" class=\"upload-progress\"><div class=\"upload-progress-bar\" id=\"upload-progress-bar\"></div></div>';
       $element['upload']['progress'] = [
         '#type' => 'item',
         '#markup' => $progress_bar
@@ -133,7 +133,7 @@ class uStudioUploadWidget extends WidgetBase {
           'id' => 'ustudio-asset-url'
         ]
       ];
-      $element['upload']['upload_submit'] = [
+      /*$element['upload']['upload_submit'] = [
         '#type' => 'submit',
         '#value' => $this->t('Upload File'),
         '#ajax' => [
@@ -146,7 +146,7 @@ class uStudioUploadWidget extends WidgetBase {
             'message' => t('Uploading to uStudio'),
           ],
         ]
-      ];
+      ];*/
 
     }
     return $element;

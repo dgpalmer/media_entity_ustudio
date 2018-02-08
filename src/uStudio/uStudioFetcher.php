@@ -47,6 +47,11 @@ class uStudioFetcher implements uStudioFetcherInterface {
   protected $options;
 
   /**
+   * Access Token
+   */
+  protected $access_token;
+
+  /**
    * uStudioAPI constructor.
    *
    * @param \GuzzleHttp\Client $client
@@ -60,6 +65,11 @@ class uStudioFetcher implements uStudioFetcherInterface {
     $this->httpClient = $client;
     $this->loggerFactory = $loggerFactory;
     $this->cache = $cache;
+    $this->access_token = \Drupal::config('media_entity_ustudio.settings')->get('access_token');
+    $this->options = [
+      'token' => $this->access_token
+    ];
+    dpm($this->access_token);
 
   }
 
@@ -233,12 +243,11 @@ class uStudioFetcher implements uStudioFetcherInterface {
   /**
    * {@inheritdoc}
    */
-  public function createVideo($access_token, $studio, $attributes) {
+  public function createVideo($studio, $attributes) {
     dpm('createVideo');
-    $options = [
-      'token' => $access_token
-    ];
-    $queryParameter = UrlHelper::buildQuery($options);
+    dpm($studio);
+    dpm($attributes);
+    $queryParameter = UrlHelper::buildQuery($this->options);
 
     $video = json_encode($attributes);
     try {

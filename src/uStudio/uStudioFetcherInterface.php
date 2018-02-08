@@ -46,8 +46,6 @@ interface uStudioFetcherInterface {
   /**
    * Perform POST Request to create video
    *
-   * @param string $access_token
-   *
    * @param string studio
    *
    * @param string $attributes
@@ -55,7 +53,7 @@ interface uStudioFetcherInterface {
    * @return array
    *  Representation of the new Video resource
    */
-  public function createVideo($access_token, $studio, $attributes);
+  public function createVideo($studio, $attributes);
 
   /**
    * Perform POST Request to upload video
