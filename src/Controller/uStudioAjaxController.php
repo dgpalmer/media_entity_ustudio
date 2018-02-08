@@ -80,6 +80,13 @@ class uStudioAjaxController extends ControllerBase {
   public function uploadVideo() {
     dpm('uploadVideoAjaxRequest');
     $ajax = new AjaxResponse();
+    $request = Drupal::request()->request;
+    $video_url = $request->get('video_url');
+    dpm($video_url);
+    $attributes = [
+      'fid' => $request->get('fid')
+    ];
+    dpm($attributes);
     return $ajax;
   }
   public function publishVideo($studio, $video) {
