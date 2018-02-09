@@ -245,8 +245,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
    */
   public function createVideo($studio, $attributes) {
     dpm('createVideo');
-    dpm($studio);
-    dpm($attributes);
     $queryParameter = UrlHelper::buildQuery($this->options);
 
     $video = json_encode($attributes);
@@ -261,7 +259,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
       $status = $response->getStatusCode();
       if ($response->getStatusCode() === 201) {
         $data = Json::decode($response->getBody()->getContents());
-        dpm($data);
         return $data;
       }
     }
@@ -274,13 +271,10 @@ class uStudioFetcher implements uStudioFetcherInterface {
   /**
    * {@inheritdoc}
    */
-  public function uploadVideo($access_token, $upload_url, FileInterface $file) {
+  public function uploadVideo($upload_url, FileInterface $file) {
     dpm('uploadVideo');
-    $options = [
-      'token' => $access_token,
-      'X-Progress-ID' => 'upload_progress',
-    ];
-    $queryParameter = UrlHelper::buildQuery($options);
+    dpm($upload_url);
+    $queryParameter = UrlHelper::buildQuery($this->options);
 
     $multipart_form = [
       [
@@ -296,32 +290,27 @@ class uStudioFetcher implements uStudioFetcherInterface {
         ['multipart' => $multipart_form]
       );
 
+      dpm('status code: ' . $response->getStatusCode());
       if ($response->getStatusCode() === 201) {
-        $data = Json::decode($response->getBody()->getContents());
-        return $data;
+        return TRUE;
       }
     }
     catch (RequestException $e) {
       dpm(Error::decodeException($e));
       $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
     }
+    return FALSE;
   }
   /**
    * {@inheritdoc}
    */
-  public function uploadVideoProgress($access_token, $upload_url) {
-    dpm('uploadVideoProgress');
-    $options = [
-      'token' => $access_token,
-      'X-Progress-ID' => 'upload_progress',
-      'callback' => 'trackUpload',
-    ];
-    $queryParameter = UrlHelper::buildQuery($options);
+  public function uploadStatus($signed_upload_url) {
+    dpm('uploadStatus');
 
     try {
       $response = $this->httpClient->request(
         'GET',
-        $upload_url . '/progress?' . $queryParameter
+        $signed_upload_url
       );
 
       if ($response->getStatusCode() === 200) {
@@ -340,11 +329,8 @@ class uStudioFetcher implements uStudioFetcherInterface {
   /**
    * {@inheritdoc}
    */
-  public function publishVideo($access_token, $studio, $destination, $video) {
-    $options = [
-      'token' => $access_token
-    ];
-    $queryParameter = UrlHelper::buildQuery($options);
+  public function publishVideo($studio, $destination, $video) {
+    $queryParameter = UrlHelper::buildQuery($this->options);
 
     $body = json_encode(['video_uid' => $video]);
 

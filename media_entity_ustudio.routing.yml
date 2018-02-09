@@ -27,8 +27,17 @@ media_entity_ustudio.video.upload:
   requirements:
     _permission: 'upload ustudio videos'
 
+media_entity_ustudio.video.upload_status:
+  path: '/api/ustudio/video/upload_status'
+  methods: [POST]
+  defaults:
+    _controller: '\Drupal\media_entity_ustudio\Controller\uStudioAjaxController::uploadStatus'
+    _title: 'Upload Status'
+  requirements:
+    _permission: 'upload ustudio videos'
+
 media_entity_ustudio.video.publish:
-  path: '/api/ustudio/video/upload'
+  path: '/api/ustudio/video/publish'
   methods: [POST]
   defaults:
     _controller: '\Drupal\media_entity_ustudio\Controller\uStudioAjaxController::publishVideo'

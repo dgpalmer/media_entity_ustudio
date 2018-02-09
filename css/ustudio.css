@@ -1,4 +1,4 @@
-.upload-progress {
+#upload-progress {
     display: none;
     height: 20px;
     width: 100%;
@@ -7,7 +7,7 @@
     margin: 0 0 1.125rem 0;
     border-radius: 50px;
 }
-.upload-progress .upload-progress-bar {
+#upload-progress .upload-progress-bar {
     height: 100%;
     width: 0%;
     background: #63c9d5;
@@ -15,4 +15,10 @@
 }
 .upload-progress.show {
     display: block;
+}
+
+#upload-button span {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid #000;
 }

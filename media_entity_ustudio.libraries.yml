@@ -3,7 +3,8 @@ drupal.uStudio:
   js:
     js/ustudio.js: {}
   css:
-    css/ustudio.css: {}
+    theme:
+      css/ustudio.css: {}
   dependencies:
     - core/drupal
     - core/jquery

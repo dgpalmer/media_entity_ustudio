@@ -58,8 +58,6 @@ interface uStudioFetcherInterface {
   /**
    * Perform POST Request to upload video
    *
-   * @param string $access_token
-   *
    * @param string $upload_url
    *
    * @param File @file
@@ -67,24 +65,20 @@ interface uStudioFetcherInterface {
    * @return array
    *  Representation of the uploaded video resource
    */
-  public function uploadVideo($access_token, $upload_url, FileInterface $file);
+  public function uploadVideo($upload_url, FileInterface $file);
 
   /**
    * Perform POST Request to upload video
-   *
-   * @param string $access_token
    *
    * @param string $upload_url
    *
    * @return array
    *  Representation of the video upload progress
    */
-  public function  uploadVideoProgress($access_token, $upload_url);
+  public function uploadStatus($signed_upload_url);
 
   /**
    * Perform GET Request to retrieve list of Destinations
-   *
-   * @param string $access_token
    *
    * @param string $studio
    *
@@ -95,5 +89,5 @@ interface uStudioFetcherInterface {
    * @return array
    *  Representation of the new Video resource
    */
-  public function publishVideo($access_token, $studio, $destination, $video);
+  public function publishVideo($studio, $destination, $video);
 }

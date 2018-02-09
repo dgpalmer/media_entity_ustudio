@@ -108,46 +108,15 @@ class uStudioUploadWidget extends WidgetBase {
         '#title' => $element['#title'],
         '#upload_location' => 'temporary://ustudio_videos',
         '#upload_validators' => [
-          'file_validate_extensions' => ['mp4'],
+          'file_validate_extensions' => ['mp4 mov'],
         ],
       ];
-//      $file_upload = '<div id="ustudio-file" class="form-item"><label for="edit-submitted-file">Video File <span class="form-required" title="This field is required.">*</span></label><input required="required" placeholder="Your Video File" type="file" id="video-file" name="file" class="form-text required"><div class="description">Upload your video file here. Accepted File extensions: mp4, mov, avi.</div></div>';
-/*      $element['upload']['file'] = [
-        '#type' => 'item',
-        '#markup' => $file_upload,
-      ];*/
-      $progress_bar = '<div><div id="upload-button"><span class="btn">Upload to Ustudio</span></div><div id=\"upload-progress\" class=\"upload-progress\"><div class=\"upload-progress-bar\" id=\"upload-progress-bar\"></div></div>';
+
+      $progress_bar = '<div><div id="upload-button"><span class="btn">Upload to Ustudio</span></div><div id="upload-progress" class="upload-progress"><div id="upload-progress-text">Not Started</div><div class="upload-progress-bar" id="upload-progress-bar"></div></div>';
       $element['upload']['progress'] = [
         '#type' => 'item',
         '#markup' => $progress_bar
       ];
-      $element['upload']['link'] = [
-        '#type' => 'hidden',
-        '#attributes' => [
-          'id' => 'ustudio-embed-link'
-        ]
-      ];
-      $element['upload']['asset_url'] = [
-        '#type' => 'hidden',
-        '#attributes' => [
-          'id' => 'ustudio-asset-url'
-        ]
-      ];
-      /*$element['upload']['upload_submit'] = [
-        '#type' => 'submit',
-        '#value' => $this->t('Upload File'),
-        '#ajax' => [
-          'callback' =>  [$this, 'storeFileForUpload'],
-//          'callback' =>  [get_class($this), 'storeFileForUpload'],
-          'event' => 'click',
-          'wrapper' => 'edit-ustudio-upload',
-          'progress' => [
-            'type' => 'throbber',
-            'message' => t('Uploading to uStudio'),
-          ],
-        ]
-      ];*/
-
     }
     return $element;
   }
@@ -173,13 +142,13 @@ class uStudioUploadWidget extends WidgetBase {
         ];
 
         // Create the uStudio Video via the uStudio Fetcher
-        $video = $this->fetcher->createVideo($this->access_token, $studio, $data);
+        $video = $this->fetcher->createVideo($studio, $data);
 
         // Upload the file to the uStudio Video via the uStudio Fetcher
-        $upload = $this->fetcher->uploadVideo($this->access_token, $video['upload_url'], $file);
+        $upload = $this->fetcher->uploadVideo($video['upload_url'], $file);
 
         // Publish the uStudio Video to the chosen destination via the uStudio Fetcher
-        $publish = $this->fetcher->publishVideo($this->access_token, $studio, $destination, $video['uid']);
+        $publish = $this->fetcher->publishVideo($studio, $destination, $video['uid']);
 
 
         $embed_code = 'https://embed.ustudio.com/embed/' . $destination . '/' . $video['uid'];
