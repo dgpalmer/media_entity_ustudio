@@ -69,8 +69,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
     $this->options = [
       'token' => $this->access_token
     ];
-    dpm($this->access_token);
-
   }
 
   /**

@@ -111,11 +111,12 @@ class uStudioAjaxController extends ControllerBase {
     $request = Drupal::request()->request;
     $selector = $request->get('selector');
     $signed_upload_url = $request->get('signed_upload_url');
+    sleep(1);
 
     try {
-      $status = $this->fetcher->uploadStatus($signed_upload_url);
+      $progress = $this->fetcher->uploadStatus($signed_upload_url);
 
-      $ajax->setData(['status' => $status]);
+      $ajax->setData(['progress' => $progress]);
     } catch(\Exception $e) {
       $this->ajaxError($ajax, $selector, 'An unknown error has occurred.');
       Drupal::logger('media_entity_ustudio')->error($e->getMessage());

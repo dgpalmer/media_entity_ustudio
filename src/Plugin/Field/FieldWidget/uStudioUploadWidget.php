@@ -40,7 +40,6 @@ class uStudioUploadWidget extends WidgetBase {
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
-    dpm('formElement');
     $entity = $items->getEntity();
 
     $element += [
@@ -104,15 +103,15 @@ class uStudioUploadWidget extends WidgetBase {
         ]
       ];
       $element['upload']['upload_file'] = [
-        '#type' => 'managed_file',
-        '#title' => $element['#title'],
-        '#upload_location' => 'temporary://ustudio_videos',
+        '#type' => 'file',
+        '#title' => $element['#title']
+/*        '#upload_location' => 'temporary://ustudio_videos',
         '#upload_validators' => [
           'file_validate_extensions' => ['mp4 mov'],
-        ],
+        ],*/
       ];
 
-      $progress_bar = '<div><div id="upload-button"><span class="btn">Upload to Ustudio</span></div><div id="upload-progress" class="upload-progress"><div id="upload-progress-text">Not Started</div><div class="upload-progress-bar" id="upload-progress-bar"></div></div>';
+      $progress_bar = '<div><div id="upload-button"><span class="button">Upload to Ustudio</span></div><div id="upload-progress" class="upload-progress"><div id="upload-progress-text">Not Started</div><div class="upload-progress-bar" id="upload-progress-bar"></div></div>';
       $element['upload']['progress'] = [
         '#type' => 'item',
         '#markup' => $progress_bar
@@ -191,7 +190,6 @@ class uStudioUploadWidget extends WidgetBase {
    * @param FormStateInterface $form_state
    */
   public static function retrieveDestinations(array $form, FormStateInterface $form_state) {
-    dpm('retrieveDestinations ajax');
     return $form['ustudio_upload']['widget'][0]['destination'];
   }
 
