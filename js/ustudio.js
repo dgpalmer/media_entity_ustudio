@@ -29,9 +29,9 @@
             method: 'POST',
             url: "/api/ustudio/video/create",
             data: data
-        }).done(function (msg) {
-            if (typeof createMsg.video !== "undefined") {
-                return createMsg.video;
+        }).done(function (response) {
+            if (typeof response.video !== "undefined") {
+                return response.video;
             } else {
                 return false;
             }
@@ -99,6 +99,29 @@
         $progressBar.css('width', percent + '%');
     }
 
+    /**
+     * Upload a File to uStudio
+     *
+     * @param studio
+     * @param destination
+     * @param video
+     */
+    function publishVideo(studio, destination, video) {
+        data = {
+            studio: studio,
+            destination: destination,
+            video: video.uid
+        }
+        $.ajax({
+            method: 'POST',
+            url:  "/api/ustudio/video/publish",
+            data: data
+        }).done(function (response) {
+            // Upload the embed code field with the player embed url
+            var embed_player = response.video.player_embed_url;
+            $("#edit-embed-code-0-value").val(embed_player);
+        });
+    }
 
 
     /**
@@ -108,84 +131,36 @@
 
         attach: function (context) {
             // Ensure this click handler is only added once
-            $("#upload-button", context).once("media_entity_ustudio").on('click', function() {
+            $("#upload-button", context).once("media_entity_ustudio").on('click', function () {
 
-            // Check that the title is filled out
-            if (!$("input[name*='upload_file']").val() || !$("#edit-name-0-value").val()) {
+                // Check that the title is filled out
+                if (!$("input[name*='upload_file']").val() || !$("#edit-name-0-value").val()) {
 
-                if (!$("input[name*='upload_file']").val()) {
-                    console.log('File Missing');
+                    if (!$("input[name*='upload_file']").val()) {
+                        console.log('File Missing');
+                    }
+                    if (!$("#edit-name-0-value").val()) {
+                        console.log('Name Missing');
+                    }
+                } else {
+                    $mediaSubmit.attr('disabled', true);
+                    $progress.addClass("show");
+                    updateProgressTracker("uploading");
+
+                    var studio = $("#edit-ustudio-upload-0-studio-uid").val();
+                    var destination = $("#edit-ustudio-upload-0-destination-destination-uid").val();
+
+                    // Create the Video
+                    var video = createVideo(studio);
+
+                    // If the video was successfully created
+                    if (typeof video !== "undefined") {
+                        // Upload the file now
+                        var upload = uploadVideo(video.signed_upload_url);
+                    }
                 }
-                if (!$("#edit-name-0-value").val()) {
-                    console.log('Name Missing');
-                }
-            } else {
-                $mediaSubmit.attr('disabled', true);
-                $progress.addClass("show");
-                updateProgressTracker("uploading");
 
-                var studio = $("#edit-ustudio-upload-0-studio-uid").val();
-                var destination = $("#edit-ustudio-upload-0-destination-destination-uid").val();
-
-                // Create the Video
-                var video = createVideo(studio);
-
-                // If the video was successfully created
-                if (typeof video !== "undefined") {
-                    // Upload the file now
-                    var upload = uploadVideo(video.signed_upload_url);
-                }
-            }
-
-
-                  {
-                      // Instantiate data needed for Uploading the uStudio Video
-                      data = {
-                              upload_url: createMsg.video.upload_url,
-                              fid: $("input[name*='upload_file']").val()
-                          }
-
-                          // Ajax request to upload the video
-                          $.ajax({
-                              method: 'POST',
-                              url: url,
-                              data: data
-                          }).done(function (msg) {
-                              // If the file was uploaded, let's check the progress
-                              // Lets also publish the video
-                              if (msg.upload === true) {
-
-                                  // Publish Video
-                                  url = "/api/ustudio/video/publish";
-                                  data = {
-                                      studio: studio,
-                                      destination: destination,
-                                      video: createMsg.video.uid
-                                  }
-
-                                  $.ajax({
-                                      method: 'POST',
-                                      url: url,
-                                      data: data
-                                  }).done(function (publishMsg) {
-
-                                      // track the upload
-                                      trackUpload(createMsg.video.signed_upload_url);
-                                      var embed_player = publishMsg.video.player_embed_url;
-                                      $("#edit-embed-code-0-value").val(embed_player);
-                                      // If the file was uploaded, let's check the progress
-                                  });
-
-
-                              }
-                          });
-                      }
-                  });
-              }
-
-
-          });
-      },
-
-
+            });
+        }
+    }
 })(jQuery, Drupal);
