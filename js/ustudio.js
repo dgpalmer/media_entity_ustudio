@@ -8,6 +8,7 @@
     var $mediaSubmit = $("#edit-actions input#edit-submit");
     var $progress = $('#upload-progress');
     var $progressText = $('#upload-progress-text');
+    var $progressBar = $('.upload-progress-bar');
     var $uploadButton = $('#upload-button span');
     var data = {};
     var percent = 0;
@@ -31,9 +32,10 @@
             data: data
         }).done(function (response) {
             if (typeof response.video !== "undefined") {
-                return response.video;
-            } else {
-                return false;
+                console.log(response.video);
+                // Upload the file now
+                uploadVideo(response.video.signed_upload_url);
+                trackUploadProgress(response.video.signed_upload_url);
             }
         });
     }
@@ -44,13 +46,29 @@
      * @param upload_url
      */
     function uploadVideo(upload_url) {
-        $.ajax({
-            method: 'POST',
-            url: upload_url,
-            data: data
-        }).done(function (response) {
-            // Code Here
-        });
+        console.log('uploadVideo');
+        var reader = new FileReader();
+        var filesField = $("#edit-ustudio-upload-0-upload-upload-file");
+        var input = filesField[0];
+        if (input.files.length > 0 ) {
+            var file = input.files[0];
+            var formData = new FormData();
+            formData.append('name', 'file');
+            formData.append('contents', file);
+            formData.append('filename', file.name);
+
+            $.ajax({
+                method: 'POST',
+                url: upload_url,
+                data: formData,
+                contentType: false,
+                processData: false,
+                cache: false
+            }).done(function (response) {
+                console.log(response);
+            });
+        }
+
     }
 
     /**
@@ -58,14 +76,15 @@
      * @param upload_url
      */
     function trackUploadProgress(upload_url) {
+        console.log('trackUploadProgress');
         console.log(upload_url);
         $.ajax({
-            method: 'get',
+            method: 'GET',
             url: upload_url
         }).done(function (response) {
-            console.log("state:");
-            var state = response.progress.status.state;
-            console.log(state);
+            console.log("status:");
+            var status = response.progress.status;
+            console.log(status);
             updateProgressTracker(response.progress.status.state);
             return response.progress.status.state;
         });
@@ -100,7 +119,7 @@
     }
 
     /**
-     * Upload a File to uStudio
+     * Publish a video to uStudio
      *
      * @param studio
      * @param destination
@@ -111,7 +130,7 @@
             studio: studio,
             destination: destination,
             video: video.uid
-        }
+        };
         $.ajax({
             method: 'POST',
             url:  "/api/ustudio/video/publish",
@@ -133,8 +152,8 @@
             // Ensure this click handler is only added once
             $("#upload-button", context).once("media_entity_ustudio").on('click', function () {
 
-                // Check that the title is filled out
-                if (!$("input[name*='upload_file']").val() || !$("#edit-name-0-value").val()) {
+                // Check that the title and file are filled out
+                if (!$("#edit-name-0-value").val()) {
 
                     if (!$("input[name*='upload_file']").val()) {
                         console.log('File Missing');
@@ -151,13 +170,8 @@
                     var destination = $("#edit-ustudio-upload-0-destination-destination-uid").val();
 
                     // Create the Video
-                    var video = createVideo(studio);
+                    createVideo(studio);
 
-                    // If the video was successfully created
-                    if (typeof video !== "undefined") {
-                        // Upload the file now
-                        var upload = uploadVideo(video.signed_upload_url);
-                    }
                 }
 
             });
