@@ -80,13 +80,20 @@
         console.log(upload_url);
         $.ajax({
             method: 'GET',
-            url: upload_url
-        }).done(function (response) {
-            console.log("status:");
+            url: upload_url,
+            dataType: 'jsonp',
+            success: function (result) {
+                console.log(result);
+            },
+            error: function () {
+                console.log("error");
+            }
+       // }).done(function (response) {
+           /* console.log("status:");
             var status = response.progress.status;
             console.log(status);
             updateProgressTracker(response.progress.status.state);
-            return response.progress.status.state;
+            return response.progress.status.state;*/
         });
     }
 
