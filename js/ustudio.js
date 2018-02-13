@@ -1,3 +1,15 @@
+function trackProgress(response){
+    console.log("trackProgress jsonp callback");
+    console.log(response);
+
+    if (response.state !== "done") {
+        Drupal.behaviors.media_entity_ustudio.updateProgressTracker("uploading", response.size, response.received);
+        setTimeout(Drupal.behaviors.media_entity_ustudio.trackUploadProgress, 500);
+    } else {
+        Drupal.behaviors.media_entity_ustudio.updateProgressTracker("done", 1, 1);
+    }
+}
+
 /**
  * @file
  */
@@ -13,12 +25,15 @@
     var data = {};
     var percent = 0;
     var stateText = "Not Started...";
+    var progress_url = '';
+    var $upload_url;
+    var $params;
 
     /**
      * Create the Video
      * @param studio
      */
-    function createVideo(studio) {
+    function createVideo(studio, destination) {
         var data = {
             title: $("#edit-name-0-value").val(),
             studio: studio,
@@ -35,7 +50,13 @@
                 console.log(response.video);
                 // Upload the file now
                 uploadVideo(response.video.signed_upload_url);
-                trackUploadProgress(response.video.signed_upload_url);
+
+                // Set the Upload URL Globally and Track the Progress
+                Drupal.behaviors.media_entity_ustudio.setUploadUrl(response.video.signed_upload_url);
+                Drupal.behaviors.media_entity_ustudio.trackUploadProgress();
+
+                // Publish the video to uStudio
+                publishVideo(studio, destination, response.video.uid);
             }
         });
     }
@@ -46,8 +67,6 @@
      * @param upload_url
      */
     function uploadVideo(upload_url) {
-        console.log('uploadVideo');
-        var reader = new FileReader();
         var filesField = $("#edit-ustudio-upload-0-upload-upload-file");
         var input = filesField[0];
         if (input.files.length > 0 ) {
@@ -71,59 +90,6 @@
 
     }
 
-    /**
-     * Track the Upload Progress
-     * @param upload_url
-     */
-    function trackUploadProgress(upload_url) {
-        console.log('trackUploadProgress');
-        console.log(upload_url);
-        $.ajax({
-            method: 'GET',
-            url: upload_url,
-            dataType: 'jsonp',
-            success: function (result) {
-                console.log(result);
-            },
-            error: function () {
-                console.log("error");
-            }
-       // }).done(function (response) {
-           /* console.log("status:");
-            var status = response.progress.status;
-            console.log(status);
-            updateProgressTracker(response.progress.status.state);
-            return response.progress.status.state;*/
-        });
-    }
-
-    /**
-     * Update the Progress Bar
-     * @param state
-     */
-    function updateProgressTracker(state) {
-        switch (state) {
-            case 'uploading':
-                stateText = "Uploading...";
-                percent = 25;
-                break;
-            case 'ingesting':
-                stateText = "Ingesting...";
-                percent = 50;
-                break;
-            case 'inspecting':
-                stateText = "Inspecting...";
-                percent = 75;
-                break;
-            case 'finished':
-                stateText = 'Finished';
-                percent = 100
-                break;
-        }
-        // Update the Progress Bar
-        $progressText.html(stateText);
-        $progressBar.css('width', percent + '%');
-    }
 
     /**
      * Publish a video to uStudio
@@ -136,7 +102,7 @@
         data = {
             studio: studio,
             destination: destination,
-            video: video.uid
+            video: video
         };
         $.ajax({
             method: 'POST',
@@ -171,17 +137,62 @@
                 } else {
                     $mediaSubmit.attr('disabled', true);
                     $progress.addClass("show");
-                    updateProgressTracker("uploading");
+                    Drupal.behaviors.media_entity_ustudio.updateProgressTracker("uploading", 1, 0);
 
                     var studio = $("#edit-ustudio-upload-0-studio-uid").val();
                     var destination = $("#edit-ustudio-upload-0-destination-destination-uid").val();
 
                     // Create the Video
-                    createVideo(studio);
+                    createVideo(studio, destination);
 
                 }
 
             });
+        },
+        setUploadUrl: function (url) {
+            $upload_url = new URL(url);
+            $params = $upload_url.searchParams;
+
+        },
+        /**
+         * Track the Upload Progress
+         */
+        trackUploadProgress: function () {
+            console.log('trackUploadProgress');
+
+            progress_url = $upload_url.origin + $upload_url.pathname + "/progress?X-Progress-ID=" + $params.get('X-Progress-ID') + "&callback=trackProgress";
+            console.log(progress_url);
+
+            var progress = '<script src="' + progress_url + '"></script>';
+            $("#upload-progress").append(progress);
+        },
+
+        /**
+         * Update the Progress Bar
+         * @param state
+         */
+        updateProgressTracker: function(state, fileSize, fileReceived) {
+            console.log(fileSize);
+            console.log(fileReceived);
+            switch (state) {
+                case 'uploading':
+                    if (fileReceived !== 0) {
+                        percent = Math.floor((fileReceived / fileSize) * 100);
+                    } else {
+                        percent = 0;
+                    }
+                    stateText = "Uploading..." + percent + "%";
+                    break;
+                case 'done':
+                    stateText = 'Done!';
+                    percent = 100;
+                    break;
+            }
+            console.log('percent: ' + percent);
+            // Update the Progress Bar
+            $progressText.html(stateText);
+            $progressBar.css('width', percent + '%');
         }
     }
+
 })(jQuery, Drupal);
