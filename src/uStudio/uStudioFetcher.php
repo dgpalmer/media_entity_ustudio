@@ -242,7 +242,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
    * {@inheritdoc}
    */
   public function createVideo($studio, $attributes) {
-    dpm('createVideo');
     $queryParameter = UrlHelper::buildQuery($this->options);
 
     $video = json_encode($attributes);
@@ -261,7 +260,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
       }
     }
     catch (RequestException $e) {
-      dpm(Error::decodeException($e));
       $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
     }
 
@@ -270,8 +268,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
    * {@inheritdoc}
    */
   public function uploadVideo($upload_url, FileInterface $file) {
-    dpm('uploadVideo');
-    dpm($upload_url);
     $queryParameter = UrlHelper::buildQuery($this->options);
 
     $multipart_form = [
@@ -288,13 +284,11 @@ class uStudioFetcher implements uStudioFetcherInterface {
         ['multipart' => $multipart_form]
       );
 
-      dpm('status code: ' . $response->getStatusCode());
       if ($response->getStatusCode() === 201) {
         return TRUE;
       }
     }
     catch (RequestException $e) {
-      dpm(Error::decodeException($e));
       $this->loggerFactory->get('media_entity_ustudio')->error("Could not post video.", Error::decodeException($e));
     }
     return FALSE;

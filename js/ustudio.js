@@ -1,12 +1,13 @@
-function trackProgress(response){
-    console.log("trackProgress jsonp callback");
-    console.log(response);
-
+function trackUploadProgress(response){
     if (response.state !== "done") {
-        Drupal.behaviors.media_entity_ustudio.updateProgressTracker("uploading", response.size, response.received);
+        if (response.state === "starting" ) {
+            Drupal.behaviors.media_entity_ustudio.updateProgressTracker("uploading", 1, 0);
+        } else {
+            Drupal.behaviors.media_entity_ustudio.updateProgressTracker("uploading", response.size, response.received);
+        }
         setTimeout(Drupal.behaviors.media_entity_ustudio.trackUploadProgress, 500);
     } else {
-        Drupal.behaviors.media_entity_ustudio.updateProgressTracker("done", 1, 1);
+        Drupal.behaviors.media_entity_ustudio.trackInspectionProgress();
     }
 }
 
@@ -47,7 +48,6 @@ function trackProgress(response){
             data: data
         }).done(function (response) {
             if (typeof response.video !== "undefined") {
-                console.log(response.video);
                 // Upload the file now
                 uploadVideo(response.video.signed_upload_url);
 
@@ -152,19 +152,39 @@ function trackProgress(response){
         setUploadUrl: function (url) {
             $upload_url = new URL(url);
             $params = $upload_url.searchParams;
-
         },
+
         /**
          * Track the Upload Progress
          */
         trackUploadProgress: function () {
-            console.log('trackUploadProgress');
+            progress_url = $upload_url.origin + $upload_url.pathname + "/progress?X-Progress-ID=" + $params.get('X-Progress-ID') + "&callback=trackUploadProgress";
+            $.ajax({
+                url: progress_url,
+                jsonp: "trackUploadProgress",
+                dataType: "jsonp"
+            });
+        },
 
-            progress_url = $upload_url.origin + $upload_url.pathname + "/progress?X-Progress-ID=" + $params.get('X-Progress-ID') + "&callback=trackProgress";
-            console.log(progress_url);
+        /**
+         * Track the Inspection Progress
+         */
+        trackInspectionProgress: function () {
+            data = {
+                signed_upload_url: $upload_url.href
+            };
+            $.ajax({
+                method: 'POST',
+                url: '/api/ustudio/video/upload_status',
+                data: data
+            }).done(function(response) {
+                Drupal.behaviors.media_entity_ustudio.updateProgressTracker(response.progress.status.state, 1, 0);
+                if (response.progress.status.state !== "finished") {
+                    window.setTimeout(Drupal.behaviors.media_entity_ustudio.trackInspectionProgress, 500);
+                }
 
-            var progress = '<script src="' + progress_url + '"></script>';
-            $("#upload-progress").append(progress);
+            });
+
         },
 
         /**
@@ -172,23 +192,28 @@ function trackProgress(response){
          * @param state
          */
         updateProgressTracker: function(state, fileSize, fileReceived) {
-            console.log(fileSize);
-            console.log(fileReceived);
             switch (state) {
                 case 'uploading':
                     if (fileReceived !== 0) {
-                        percent = Math.floor((fileReceived / fileSize) * 100);
+                        percent = Math.floor((fileReceived / fileSize) * 50);
                     } else {
                         percent = 0;
                     }
                     stateText = "Uploading..." + percent + "%";
                     break;
-                case 'done':
+                case 'ingesting':
+                    percent = 67;
+                    stateText = "Ingesting...";
+                    break;
+                case 'inspecting':
+                    percent = 85;
+                    stateText = "Inspecting...";
+                    break;
+                case 'finished':
                     stateText = 'Done!';
                     percent = 100;
                     break;
             }
-            console.log('percent: ' + percent);
             // Update the Progress Bar
             $progressText.html(stateText);
             $progressBar.css('width', percent + '%');

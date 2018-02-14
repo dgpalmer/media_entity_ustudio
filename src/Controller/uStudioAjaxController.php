@@ -83,7 +83,6 @@ class uStudioAjaxController extends ControllerBase {
    * AJAX Controller endpoint to upload a video file to uStudio
    */
   public function uploadVideo() {
-    dpm('uploadVideoAjaxRequest');
     $ajax = new AjaxResponse();
     $request = Drupal::request()->request;
     $selector = $request->get('selector');
@@ -111,8 +110,6 @@ class uStudioAjaxController extends ControllerBase {
     $request = Drupal::request()->request;
     $selector = $request->get('selector');
     $signed_upload_url = $request->get('signed_upload_url');
-    sleep(1);
-
     try {
       $progress = $this->fetcher->uploadStatus($signed_upload_url);
 
@@ -125,8 +122,8 @@ class uStudioAjaxController extends ControllerBase {
     }
   }
 
+
   public function publishVideo() {
-    dpm('publishVideoAjaxRequest');
     $ajax = new AjaxResponse();
     $request = Drupal::request()->request;
     $selector = $request->get('selector');
@@ -163,22 +160,6 @@ class uStudioAjaxController extends ControllerBase {
       'message' => $this->t($message ?: 'An unknown error has occurred.'),
     ]]));
     $ajax->setStatusCode(400);
-  }
-
-  /**
-   * Check if the user has access to perform this reaction.
-   * @param AccountInterface $account
-   * @return AccessResult|Drupal\Core\Access\AccessResultForbidden
-   */
-  public function access(AccountInterface $account) {
-    // Find the reaction type & get it's permission.
-    $reaction = Drupal::routeMatch()->getParameter('reaction');
-    /** @var \Drupal\asf_reactions\Entity\UserReactionTypeInterface $userReactionType */
-    $userReactionType = $this->entityTypeManager->getStorage('user_reaction_type')->load($reaction);
-    if (!isset($userReactionType) || $account->isAnonymous()) {
-      return AccessResult::forbidden();
-    }
-    return AccessResult::allowedIfHasPermission($account, $userReactionType->permission());
   }
 
 }
