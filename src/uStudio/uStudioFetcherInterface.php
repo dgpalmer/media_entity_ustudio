@@ -90,4 +90,19 @@ interface uStudioFetcherInterface {
    *  Representation of the new Video resource
    */
   public function publishVideo($studio, $destination, $video);
+
+
+  /**
+   * Perform GET Request to retrieve list of Destinations
+   *
+   * @param string $studio
+   *
+   * @param string $destination
+   *
+   * @param string $video
+   *
+   * @return array
+   *  Representation of the new Video resource
+   */
+  public function fetchVideoConfig($destination, $video);
 }

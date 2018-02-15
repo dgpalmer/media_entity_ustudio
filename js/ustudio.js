@@ -22,7 +22,7 @@ function trackUploadProgress(response){
     var $progress = $('#upload-progress');
     var $progressText = $('#upload-progress-text');
     var $progressBar = $('.upload-progress-bar');
-    var $uploadButton = $('#upload-button span');
+    var $uploadButton = $('#upload-button');
     var data = {};
     var percent = 0;
     var stateText = "Not Started...";
@@ -126,15 +126,21 @@ function trackUploadProgress(response){
             $("#upload-button", context).once("media_entity_ustudio").on('click', function () {
 
                 // Check that the title and file are filled out
-                if (!$("#edit-name-0-value").val()) {
-
-                    if (!$("input[name*='upload_file']").val()) {
-                        console.log('File Missing');
+                var nameInput = document.getElementById("edit-name-0-value");
+                var fileInput = document.getElementById("edit-ustudio-upload-0-upload-upload-file");
+                var filesField = $("#edit-ustudio-upload-0-upload-upload-file");
+                var files = filesField[0];
+                if (!nameInput.checkValidity() || files.files.length < 1) {
+                    if (!nameInput.checkValidity()) {
+                        nameInput.reportValidity();
                     }
-                    if (!$("#edit-name-0-value").val()) {
-                        console.log('Name Missing');
+                    if (files.files.length < 1) {
+                    console.log('no files');
+                        fileInput.setCustomValidity("You must select a video file to upload.");
+                        fileInput.reportValidity();
                     }
                 } else {
+                    fileInput.setCustomValidity("");
                     $mediaSubmit.attr('disabled', true);
                     $progress.addClass("show");
                     Drupal.behaviors.media_entity_ustudio.updateProgressTracker("uploading", 1, 0);
@@ -178,9 +184,11 @@ function trackUploadProgress(response){
                 url: '/api/ustudio/video/upload_status',
                 data: data
             }).done(function(response) {
-                Drupal.behaviors.media_entity_ustudio.updateProgressTracker(response.progress.status.state, 1, 0);
                 if (response.progress.status.state !== "finished") {
-                    window.setTimeout(Drupal.behaviors.media_entity_ustudio.trackInspectionProgress, 500);
+                    Drupal.behaviors.media_entity_ustudio.updateProgressTracker(response.progress.status.state, 1, 0);
+                    window.setTimeout(Drupal.behaviors.media_entity_ustudio.trackInspectionProgress, 1000);
+                } else {
+                    window.SetTimeout(Drupal.behaviors.media_entity_ustudio.updateProgressTracker(response.progress.status.state, 1, 0), 10000)
                 }
 
             });
@@ -212,6 +220,7 @@ function trackUploadProgress(response){
                 case 'finished':
                     stateText = 'Done!';
                     percent = 100;
+                    $mediaSubmit.attr('disabled', false);
                     break;
             }
             // Update the Progress Bar

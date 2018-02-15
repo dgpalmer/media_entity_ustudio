@@ -104,11 +104,7 @@ class uStudioUploadWidget extends WidgetBase {
       ];
       $element['upload']['upload_file'] = [
         '#type' => 'file',
-        '#title' => $element['#title']
-/*        '#upload_location' => 'temporary://ustudio_videos',
-        '#upload_validators' => [
-          'file_validate_extensions' => ['mp4 mov'],
-        ],*/
+        '#title' => $element['#title'],
       ];
 
       $progress_bar = '<div><div id="upload-button"><span class="button">Upload to Ustudio</span></div><div id="upload-progress" class="upload-progress"><div id="upload-progress-text">Not Started</div><div class="upload-progress-bar" id="upload-progress-bar"></div></div>';

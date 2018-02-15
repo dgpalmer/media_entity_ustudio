@@ -297,8 +297,6 @@ class uStudioFetcher implements uStudioFetcherInterface {
    * {@inheritdoc}
    */
   public function uploadStatus($signed_upload_url) {
-    dpm('uploadStatus');
-
     try {
       $response = $this->httpClient->request(
         'GET',

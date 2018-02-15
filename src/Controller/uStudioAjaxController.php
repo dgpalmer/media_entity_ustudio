@@ -54,7 +54,6 @@ class uStudioAjaxController extends ControllerBase {
    * AJAX controller endpoint to create a video in UStudio
    */
   public function createVideo() {
-    dpm('create video ajax request');
     $selector = Drupal::request()->request->get('selector');
     $ajax = new AjaxResponse();
 
@@ -105,7 +104,6 @@ class uStudioAjaxController extends ControllerBase {
    * AJAX Controller endpoint to upload a video file to uStudio
    */
   public function uploadStatus() {
-    dpm('uploadStatus');
     $ajax = new AjaxResponse();
     $request = Drupal::request()->request;
     $selector = $request->get('selector');
