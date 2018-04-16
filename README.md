@@ -46,7 +46,7 @@ field_map:
   caption: ustudio_caption
 ```
 
-Project page: http://drupal.org/project/media_entity_ustudio
+Project page: https://github.com/dgpalmer/media_entity_ustudio
 
 Maintainers:
  - Donovan Palmer (@dpiga) drupal.org/user/332471
