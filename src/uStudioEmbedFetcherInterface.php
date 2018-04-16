@@ -20,4 +20,6 @@ interface uStudioEmbedFetcherInterface {
    */
   public function fetchUStudioEmbed($destination, $video);
 
+
+  public function fetchUStudioConfig($destination, $video);
 }

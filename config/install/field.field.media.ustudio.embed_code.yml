@@ -10,7 +10,7 @@ entity_type: media
 bundle: ustudio
 label: 'uStudio Video URL Or Embed Code'
 description: 'Paste the URL to the uStudio Video or its embed code. You can also upload a new video above and the fields will be autopopulated.'
-required: true
+required: false
 translatable: false
 default_value: {  }
 default_value_callback: ''

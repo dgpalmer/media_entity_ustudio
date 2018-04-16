@@ -149,7 +149,10 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
           return FALSE;
 
         case 'thumbnail':
-          return (string) $ustudio['thumbnail_url'];
+          dpm('thumbnail');
+          $config = $this->fetcher->fetchUStudioConfig($matches['destination'], $matches['video']);
+          dpm($config['videos']);
+          return $config['videos'][0]['images'][0]['image_url'];
 
         case 'thumbnail_local':
           $local_uri = $this->getMetadata($media, 'thumbnail_local_uri');
@@ -164,7 +167,6 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
               file_prepare_directory($directory, FILE_CREATE_DIRECTORY | FILE_MODIFY_PERMISSIONS);
 
               $image_url = $this->getMetadata($media, 'thumbnail');
-              // $image_url = "https://i.imgur.com/Ii7m3W7.jpg";
 
               try {
                 $options = [
@@ -173,6 +175,7 @@ class uStudio extends MediaSourceBase implements MediaSourceFieldConstraintsInte
                 $thumbnail = $this->httpClient->request('GET', $image_url, $options);
 
                 file_unmanaged_save_data((string) $thumbnail->getBody(), $local_uri, FILE_EXISTS_REPLACE);
+                dpm($local_uri);
                 return $local_uri;
               } catch (\Exception $e) {
               }
